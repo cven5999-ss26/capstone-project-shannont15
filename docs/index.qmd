@@ -15,3 +15,28 @@ format: html
 editor: visual
 ---
 
+# Introduction
+
+Looking at the conditions of refugee camps across 36 countries and 227 locations. The UNHCR Information Management System (IRIS) collected the data as an aggregate of conditions across specfic camps. I want to use this data to visualize these conditions and make cross-comparisons of similarities and differences based on location, time, and reason.
+
+# Methods
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(here)
+
+unhcr_wash_data <- read_csv(here::here("data/raw/refugee_camp_water_data.csv"))
+```
+
+## Reading the Data
+
+## Initial Data Tidying
+
+# Results
+
+# Conclusions
+
+## Summary of Findings
+
+## Questions and Next Steps

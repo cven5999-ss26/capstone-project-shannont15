@@ -1,0 +1,17 @@
+---
+title: "Data Exploration for WASH Status at Refugee Camps"
+author:
+  name: "Shannon Teri"
+  orcid: "0009-0000-9889-1427"
+  email: "shannon.teri@colorado.edu"
+  affiliation:
+    name: "University of Colorado Boulder"
+    department: "Department of Civil, Environmental and Architectural Engineering"
+    city: "Boulder"
+    state: "CO"
+    country: "USA"
+date: 2026-07-01
+format: html
+editor: visual
+---
+

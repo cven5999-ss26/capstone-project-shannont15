@@ -33,6 +33,35 @@ unhcr_wash_data <- read_csv(here::here("data/raw/refugee_camp_water_data.csv"))
 
 ## Initial Data Tidying
 
+```{r}
+# view the first few rows
+head(unhcr_wash_data)
+
+# check the number of rows/columns
+dim(unhcr_wash_data)
+
+# get the header names
+colnames(unhcr_wash_data)
+
+# number of inputs per country, checking that the values equal number of inputs in data
+country_check <- unhcr_wash_data %>% 
+  count(country)
+sum(country_check$n)
+# checks! = 6425
+
+# summarize the data
+unhcr_wash_data %>% 
+  group_by(country) %>% 
+  summarise(pop_mean = mean(refugee_pop),
+            handpump_mean = mean(persons_per_handpump, na.rm=TRUE),
+            tap_mean = mean(persons_per_tap, na.rm = TRUE),
+            liters_per_person_mean = mean(liters_per_person_per_day, na.rm = TRUE))
+
+unhcr_wash_data %>% 
+  filter(country == "Niger")
+            
+```
+
 # Results
 
 # Conclusions

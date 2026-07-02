@@ -178,6 +178,107 @@ date  (3): start_date, end_date, reporting_annual
 </section>
 <section id="initial-data-tidying" class="level2">
 <h2 class="anchored" data-anchor-id="initial-data-tidying">Initial Data Tidying</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view the first few rows</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(unhcr_wash_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 27
+  form_id start_date end_date   location_id location_name country post_emergency
+    &lt;dbl&gt; &lt;date&gt;     &lt;date&gt;           &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;   &lt;chr&gt;         
+1  5.44e7 2024-01-01 2024-12-31         518 Dagahaley     Kenya   &lt;NA&gt;          
+2  5.44e7 2024-01-01 2024-12-31         519 Hagadera      Kenya   &lt;NA&gt;          
+3  5.44e7 2024-01-01 2024-12-31         520 Ifo           Kenya   &lt;NA&gt;          
+4  5.44e7 2024-01-01 2024-12-31        5105 Ifo 2         Kenya   &lt;NA&gt;          
+5  5.44e7 2024-12-02 2024-12-29         541 Buramino      Ethiop… Post-emergency
+6  5.44e7 2024-09-02 2024-09-29         209 Lovua settle… Angola  Post-emergency
+# ℹ 20 more variables: persons_per_handpump &lt;dbl&gt;, persons_per_tap &lt;dbl&gt;,
+#   liters_per_person_per_day &lt;dbl&gt;, non_chlorinated_0_cfu &lt;dbl&gt;,
+#   chlorinated_safe_water_quality &lt;dbl&gt;, households_with_toilet &lt;dbl&gt;,
+#   persons_per_toilet &lt;dbl&gt;, persons_per_shower &lt;dbl&gt;,
+#   persons_per_hygiene_promoter &lt;dbl&gt;, refugee_pop &lt;dbl&gt;,
+#   reporting_monthly &lt;dbl&gt;, liters_per_person_household &lt;dbl&gt;,
+#   potable_water_storage_10l &lt;dbl&gt;, protected_water_sources &lt;dbl&gt;, …</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check the number of rows/columns</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(unhcr_wash_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6425   27</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get the header names</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(unhcr_wash_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "form_id"                        "start_date"                    
+ [3] "end_date"                       "location_id"                   
+ [5] "location_name"                  "country"                       
+ [7] "post_emergency"                 "persons_per_handpump"          
+ [9] "persons_per_tap"                "liters_per_person_per_day"     
+[11] "non_chlorinated_0_cfu"          "chlorinated_safe_water_quality"
+[13] "households_with_toilet"         "persons_per_toilet"            
+[15] "persons_per_shower"             "persons_per_hygiene_promoter"  
+[17] "refugee_pop"                    "reporting_monthly"             
+[19] "liters_per_person_household"    "potable_water_storage_10l"     
+[21] "protected_water_sources"        "menstrual_hygiene_satisfaction"
+[23] "household_toilet"               "defecate_in_toilet"            
+[25] "access_to_soap"                 "solid_waste_disposal_access"   
+[27] "reporting_annual"              </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># number of inputs per country, checking that the values equal number of inputs in data</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>country_check <span class="ot">&lt;-</span> unhcr_wash_data <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(country)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(country_check<span class="sc">$</span>n)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6425</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># checks! = 6425</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize the data</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>unhcr_wash_data <span class="sc">%&gt;%</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pop_mean =</span> <span class="fu">mean</span>(refugee_pop),</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">handpump_mean =</span> <span class="fu">mean</span>(persons_per_handpump, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">tap_mean =</span> <span class="fu">mean</span>(persons_per_tap, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">liters_per_person_mean =</span> <span class="fu">mean</span>(liters_per_person_per_day, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 36 × 5
+   country                pop_mean handpump_mean tap_mean liters_per_person_mean
+   &lt;chr&gt;                     &lt;dbl&gt;         &lt;dbl&gt;    &lt;dbl&gt;                  &lt;dbl&gt;
+ 1 Algeria                     NA           NaN      64.3                   33.4
+ 2 Angola                    6883.           54     112.                    23.8
+ 3 Bangladesh                  NA           331      72.5                   35.9
+ 4 Brazil                     544.          NaN     NaN                     13.3
+ 5 Burkina Faso                NA           580.     44.4                   18.7
+ 6 Burundi                  10881.          NaN     116.                    23.2
+ 7 Cameroon                    NA           460.    308.                    14.7
+ 8 Chad                        NA           625.    215.                    21.3
+ 9 Colombia                   438.          NaN       4                     25.4
+10 Democratic Republic o…      NA          1380.    173.                    43.9
+# ℹ 26 more rows</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>unhcr_wash_data <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(country <span class="sc">==</span> <span class="st">"Niger"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 341 × 27
+    form_id start_date end_date   location_id location_name             country
+      &lt;dbl&gt; &lt;date&gt;     &lt;date&gt;           &lt;dbl&gt; &lt;chr&gt;                     &lt;chr&gt;  
+ 1 54418973 2024-07-29 2024-09-01        4889 Centre humanitaire Agadez Niger  
+ 2 54418969 2024-07-29 2024-09-01        4370 Chadakori                 Niger  
+ 3 54418971 2024-07-29 2024-09-01        4369 Dandaji Makao             Niger  
+ 4 54418972 2024-07-29 2024-09-01        4371 Garin Kaka                Niger  
+ 5 54418327 2024-07-01 2024-07-28         696 Abala                     Niger  
+ 6 54418331 2024-07-01 2024-07-28         472 Ayerou                    Niger  
+ 7 54417959 2024-07-01 2024-07-28        4889 Centre humanitaire Agadez Niger  
+ 8 54417813 2024-07-01 2024-07-28        4370 Chadakori                 Niger  
+ 9 54417814 2024-07-01 2024-07-28        4369 Dandaji Makao             Niger  
+10 54417815 2024-07-01 2024-07-28        4371 Garin Kaka                Niger  
+# ℹ 331 more rows
+# ℹ 21 more variables: post_emergency &lt;chr&gt;, persons_per_handpump &lt;dbl&gt;,
+#   persons_per_tap &lt;dbl&gt;, liters_per_person_per_day &lt;dbl&gt;,
+#   non_chlorinated_0_cfu &lt;dbl&gt;, chlorinated_safe_water_quality &lt;dbl&gt;,
+#   households_with_toilet &lt;dbl&gt;, persons_per_toilet &lt;dbl&gt;,
+#   persons_per_shower &lt;dbl&gt;, persons_per_hygiene_promoter &lt;dbl&gt;,
+#   refugee_pop &lt;dbl&gt;, reporting_monthly &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
 </section>
 </section>
 <section id="results" class="level1">

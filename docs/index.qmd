@@ -49,16 +49,45 @@ country_check <- unhcr_wash_data %>%
 sum(country_check$n)
 # checks! = 6425
 
-# summarize the data
-unhcr_wash_data %>% 
-  group_by(country) %>% 
-  summarise(pop_mean = mean(refugee_pop),
-            handpump_mean = mean(persons_per_handpump, na.rm=TRUE),
-            tap_mean = mean(persons_per_tap, na.rm = TRUE),
-            liters_per_person_mean = mean(liters_per_person_per_day, na.rm = TRUE))
+wash_data_combined <- unhcr_wash_data %>% 
+  mutate(toilets_per_household_per = coalesce(households_with_toilet, household_toilet)) 
 
-unhcr_wash_data %>% 
-  filter(country == "Niger")
+# drop rows that don't have substantial data
+wash_data_lim <- unhcr_wash_data %>% 
+  mutate(toilets_per_HH_percentage = coalesce(households_with_toilet, household_toilet)) %>% 
+  filter(!if_all(persons_per_handpump:reporting_annual, is.na)) %>% 
+  select(-c(form_id, location_id, reporting_monthly, reporting_annual, household_toilet, households_with_toilet)) %>% 
+  relocate(refugee_pop, .before = persons_per_handpump) %>% 
+  relocate(c(persons_per_shower, persons_per_hygiene_promoter, persons_per_toilet), .before = liters_per_person_per_day) %>% 
+  relocate(liters_per_person_household, .after = liters_per_person_per_day) %>% 
+  relocate(c(defecate_in_toilet, toilets_per_HH_percentage, solid_waste_disposal_access, menstrual_hygiene_satisfaction, access_to_soap), .after = persons_per_toilet) %>% 
+  rename(safe_water_perc = chlorinated_safe_water_quality,
+         liters_per_HH_per_day = liters_per_person_household,
+         storage10L_HH_perc = potable_water_storage_10l,
+         safe_water_collect_HH_perc = protected_water_sources,
+         defectae_in_toilet_HH_perc = defecate_in_toilet,
+         access_to_soap_HH_perc = access_to_soap,
+         solid_waste_disposal_HH_perc = solid_waste_disposal_access) %>% 
+  relocate(safe_water_perc, .before = safe_water_collect_HH_perc)
+
+
+#check <- wash_data_lim %>% 
+#  mutate(
+#    status = case_when(
+#      !is.na(household_toilet) & !is.na(households_with_toilet) ~ "Both",
+#      !is.na(household_toilet) | !is.na(households_with_toilet) ~ "One",
+#      TRUE ~ "Neither"
+#    )
+#  ) 
+  
+#check %>% 
+#  count(status)
+
+# summarize
+wash_data_lim %>% 
+  group_by(country)
+
+
             
 ```
 

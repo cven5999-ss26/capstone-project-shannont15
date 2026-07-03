@@ -85,8 +85,13 @@ wash_data_lim <- unhcr_wash_data %>%
 
 # summarize
 wash_data_lim %>% 
-  group_by(country)
+  group_by(country) %>% 
+  summarise(mean_pop = mean(refugee_pop, na.rm = TRUE))
 
+#I'm having issues with summarise
+
+write_csv(wash_data_lim,
+          here::here("data/processed/refugee_camp_water_data_tidied.csv"))
 
             
 ```

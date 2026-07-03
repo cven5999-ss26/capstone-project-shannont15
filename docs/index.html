@@ -267,30 +267,28 @@ date  (3): start_date, end_date, reporting_annual
 <span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize</span></span>
 <span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>wash_data_lim <span class="sc">%&gt;%</span> </span>
-<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_pop =</span> <span class="fu">mean</span>(refugee_pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6,423 × 22
-# Groups:   country [35]
-   start_date end_date   location_name    country  post_emergency refugee_pop
-   &lt;date&gt;     &lt;date&gt;     &lt;chr&gt;            &lt;chr&gt;    &lt;chr&gt;                &lt;dbl&gt;
- 1 2024-01-01 2024-12-31 Dagahaley        Kenya    &lt;NA&gt;                    NA
- 2 2024-01-01 2024-12-31 Hagadera         Kenya    &lt;NA&gt;                    NA
- 3 2024-01-01 2024-12-31 Ifo              Kenya    &lt;NA&gt;                    NA
- 4 2024-01-01 2024-12-31 Ifo 2            Kenya    &lt;NA&gt;                    NA
- 5 2024-12-02 2024-12-29 Buramino         Ethiopia Post-emergency       49000
- 6 2024-09-02 2024-09-29 Lovua settlement Angola   Post-emergency        6262
- 7 2024-09-02 2024-09-29 Arbat            Iraq     Post-emergency        9138
- 8 2024-09-02 2024-09-29 Basirma          Iraq     Post-emergency        9294
- 9 2024-09-02 2024-09-29 Kawergosk        Iraq     Post-emergency        7795
-10 2024-09-02 2024-09-29 Qushtapa         Iraq     Post-emergency        8392
-# ℹ 6,413 more rows
-# ℹ 16 more variables: persons_per_handpump &lt;dbl&gt;, persons_per_tap &lt;dbl&gt;,
-#   persons_per_shower &lt;dbl&gt;, persons_per_hygiene_promoter &lt;dbl&gt;,
-#   persons_per_toilet &lt;dbl&gt;, defectae_in_toilet_HH_perc &lt;dbl&gt;,
-#   toilets_per_HH_percentage &lt;dbl&gt;, solid_waste_disposal_HH_perc &lt;dbl&gt;,
-#   menstrual_hygiene_satisfaction &lt;dbl&gt;, access_to_soap_HH_perc &lt;dbl&gt;,
-#   liters_per_person_per_day &lt;dbl&gt;, liters_per_HH_per_day &lt;dbl&gt;, …</code></pre>
+<pre><code># A tibble: 35 × 2
+   country                          mean_pop
+   &lt;chr&gt;                               &lt;dbl&gt;
+ 1 Algeria                            17967.
+ 2 Angola                              6883.
+ 3 Bangladesh                         24742.
+ 4 Brazil                               544.
+ 5 Burkina Faso                        6755.
+ 6 Burundi                            10881.
+ 7 Cameroon                           17331.
+ 8 Chad                               17603.
+ 9 Colombia                             438.
+10 Democratic Republic of the Congo   14326.
+# ℹ 25 more rows</code></pre>
 </div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#I'm having issues with summarise</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(wash_data_lim,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>          here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/processed/refugee_camp_water_data_tidied.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>

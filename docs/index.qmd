@@ -22,7 +22,6 @@ Looking at the conditions of refugee camps across 36 countries and 227 locations
 # Methods
 
 ```{r}
-library(dplyr)
 library(tidyverse)
 library(here)
 
@@ -49,46 +48,83 @@ country_check <- unhcr_wash_data %>%
 sum(country_check$n)
 # checks! = 6425
 
-wash_data_combined <- unhcr_wash_data %>% 
-  mutate(toilets_per_household_per = coalesce(households_with_toilet, household_toilet)) 
-
 # drop rows that don't have substantial data
 wash_data_lim <- unhcr_wash_data %>% 
   mutate(toilets_per_HH_percentage = coalesce(households_with_toilet, household_toilet)) %>% 
   filter(!if_all(persons_per_handpump:reporting_annual, is.na)) %>% 
-  select(-c(form_id, location_id, reporting_monthly, reporting_annual, household_toilet, households_with_toilet)) %>% 
+  select(-c(form_id, 
+            location_id, 
+            reporting_monthly, 
+            reporting_annual, 
+            household_toilet, 
+            households_with_toilet)) %>% 
   relocate(refugee_pop, .before = persons_per_handpump) %>% 
-  relocate(c(persons_per_shower, persons_per_hygiene_promoter, persons_per_toilet), .before = liters_per_person_per_day) %>% 
+  relocate(c(persons_per_shower, 
+             persons_per_hygiene_promoter, 
+             persons_per_toilet), .before = liters_per_person_per_day) %>% 
   relocate(liters_per_person_household, .after = liters_per_person_per_day) %>% 
-  relocate(c(defecate_in_toilet, toilets_per_HH_percentage, solid_waste_disposal_access, menstrual_hygiene_satisfaction, access_to_soap), .after = persons_per_toilet) %>% 
+  relocate(c(defecate_in_toilet, 
+             toilets_per_HH_percentage, 
+             solid_waste_disposal_access, 
+             menstrual_hygiene_satisfaction, 
+             access_to_soap), .after = persons_per_toilet) %>% 
   rename(safe_water_perc = chlorinated_safe_water_quality,
          liters_per_HH_per_day = liters_per_person_household,
          storage10L_HH_perc = potable_water_storage_10l,
          safe_water_collect_HH_perc = protected_water_sources,
-         defectae_in_toilet_HH_perc = defecate_in_toilet,
+         defecate_in_toilet_HH_perc = defecate_in_toilet,
          access_to_soap_HH_perc = access_to_soap,
          solid_waste_disposal_HH_perc = solid_waste_disposal_access) %>% 
   relocate(safe_water_perc, .before = safe_water_collect_HH_perc)
 
+# get a new year column so for better summary
+wash_data_lim <- wash_data_lim |> 
+  mutate(year = year(start_date),
+         month = month(start_date + (end_date - start_date) / 2))
 
-#check <- wash_data_lim %>% 
-#  mutate(
-#    status = case_when(
-#      !is.na(household_toilet) & !is.na(households_with_toilet) ~ "Both",
-#      !is.na(household_toilet) | !is.na(households_with_toilet) ~ "One",
-#      TRUE ~ "Neither"
-#    )
-#  ) 
-  
-#check %>% 
-#  count(status)
+wash_data_lim <- wash_data_lim |> 
+  mutate(report_date = sprintf("%d-%02d", year, month)) |> 
+  relocate(report_date, .before = start_date)
+# some are a bit weird, but when checking against later dataset, they are excluded
 
-# summarize
-wash_data_lim %>% 
+wash_data_lim <- wash_data_lim |> 
+  select(-c(year, month))
+
+# check size of dataset
+dim(wash_data_lim)
+
+# check how many empty cells per column
+colSums(is.na(wash_data_lim))
+
+# get rid of any that are over 3215 cells (half)
+# get rid of columns that only have 6 cells worth of data
+wash_data_core <- wash_data_lim |> 
+  select(-c(persons_per_handpump, 
+            defecate_in_toilet_HH_perc, 
+            solid_waste_disposal_HH_perc,
+            menstrual_hygiene_satisfaction, 
+            access_to_soap_HH_perc, 
+            liters_per_HH_per_day, 
+            non_chlorinated_0_cfu, 
+            storage10L_HH_perc, 
+            safe_water_collect_HH_perc))
+
+# figure out what data sets aren't viable (not enough information)
+wash_data_core <- wash_data_core |> 
+  mutate(not_NA = rowSums(!is.na(wash_data_core))) |> 
+  filter(not_NA > 6)
+
+# get rid of the not_NA column (not needed)
+wash_data_core <- wash_data_core |> 
+  select(-not_NA)
+
+# summarize by county
+wash_data_core %>% 
   group_by(country) %>% 
-  summarise(mean_pop = mean(refugee_pop, na.rm = TRUE))
-
-#I'm having issues with summarise
+  summarise(mean_pop = mean(refugee_pop, na.rm = TRUE),
+            sum_instances = n(),
+            sum_cities = n_distinct(location_name),
+            sum_report_years = n_distinct(year(start_date)))
 
 write_csv(wash_data_lim,
           here::here("data/processed/refugee_camp_water_data_tidied.csv"))

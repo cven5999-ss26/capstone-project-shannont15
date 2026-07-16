@@ -124,15 +124,67 @@ wash_data_core %>%
   summarise(mean_pop = mean(refugee_pop, na.rm = TRUE),
             sum_instances = n(),
             sum_cities = n_distinct(location_name),
-            sum_report_years = n_distinct(year(start_date)))
+            sum_report_years = n_distinct(year(start_date)),
+            emergency = mean((post_emergency == "Emergency") * 100),
+            post_emergency = mean((post_emergency == "Post-emergency") * 100))
 
 write_csv(wash_data_lim,
           here::here("data/processed/refugee_camp_water_data_tidied.csv"))
 
-            
 ```
 
 # Results
+
+According the UNHCR:
+
+Water Supply
+
+- 20 liters / person / day (by country)
+
+```{r}
+wash_data_core |> 
+  group_by(country) |> 
+  summarise(liters_per_person_per_day = mean(liters_per_person_per_day, na.rm = TRUE)) |> 
+  filter(liters_per_person_per_day != 0)
+
+```
+
+- by camp
+
+```{r}
+wash_data_core |> 
+  group_by(country, location_name) |> 
+  summarise(liters_per_person_per_day = mean(liters_per_person_per_day, na.rm = TRUE)) |> 
+  filter(liters_per_person_per_day != 0)
+  # takes out the ones that don't have data (listed at 0)
+```
+
+- be within 200 meter walk DONT HAVE THIS DATA
+
+- serve max 100 people
+
+```{r}
+wash_data_core |> 
+  group_by(country) |> 
+  summarise(persons_per_tap = mean(persons_per_tap, na.rm = TRUE)) |> 
+  filter(!is.na(persons_per_tap))
+  # takes away Brazil that didn't have info on this
+
+wash_data_core |> 
+  group_by(country, location_name) |> 
+  summarise(persons_per_tap = mean(persons_per_tap, na.rm = TRUE)) |> 
+  filter(persons_per_tap != 0)
+```
+
+Bathrooms:
+
+- 1 bathroom / 20 people
+
+- 1 shower / 50 people
+
+Population:
+
+- 20,000 people per camp
 
 # Conclusions
 

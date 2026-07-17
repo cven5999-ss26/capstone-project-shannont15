@@ -1,5 +1,5 @@
 ---
-title: "WASH Status in Refugee Camps Located in Sub-Saharan Africa"
+title: "WASH Status in Refugee Camps"
 author:
   name: "Shannon Teri"
   orcid: "0009-0000-9889-1427"
@@ -10,8 +10,10 @@ author:
     city: "Boulder"
     state: "CO"
     country: "USA"
-date: 2026-07-01
-format: html
+date: 2026-07-17
+format:
+  html:
+    toc: TRUE
 editor: visual
 execute:
   echo: false
@@ -41,7 +43,7 @@ library(countrycode)
 
 ```{r}
 #| echo: TRUE
-
+# read in the raw data
 unhcr_wash_data <- read_csv(here::here("data/raw/refugee_camp_water_data.csv"))
 ```
 
@@ -280,8 +282,9 @@ The refined data set was then save as a separate CSV file for future analysis.
 
 ```{r}
 #| echo: TRUE
+# save new file with tidied data
 write_csv(wash_data_core,
-          here::here("data/processed/refugee_camp_water_data_tidied.csv"))
+          here::here("data/processed/refugee_camp_WASH_data_tidied.csv"))
 ```
 
 # Results
@@ -295,21 +298,26 @@ Refugee camps are not isolated to any one region of the world. While some countr
 #| fig-alt: "Bar chart of the number of refugee camps reported each year. This is cross-referenced with a line graph that shows the number of countries these camps are established in. The bar chart is further identified by color to indicate how many refugee camps are present per region."
 #| fig-width: 9
 
+# overlay of two plot, point was to show total camps by region and then total countries that are being analyzed
 ggplot() +
+  # camps by region
   geom_col(data = wash_data_timeline,
            mapping = aes(x = year,
                          y = location_count,
                          fill = region)) +
     scale_fill_brewer(palette = "Set1") +
+  # country total (point)
   geom_point(data = wash_data_timeline_yr,
              mapping = aes(x = year, 
                            y= country_count,
                            group = 1)) +  
+  # country total (line)
   geom_line(data = wash_data_timeline_yr,
             mapping = aes(x = year,
                           y = country_count,
                           linetype = "Countries Reporting",
                           group = 1)) +
+  # allows for axis on each side
   scale_y_continuous(
     name = "Number of Refugee Camps", 
     sec.axis = sec_axis(
@@ -331,6 +339,7 @@ Because Sub-Saharan Africa contained the largest amount of available data, I fur
 # FOCUS SPECIFICALLY ON SUB-SAHARHAN AFRICA SINCE IT HAS THE MOST DATA
 # Starting with laying out the standards and actuals per year
 
+# focus only on sub-saharan africa
 core_SSA <- wash_data_core |> 
   mutate(year = substr(report_date, "1", "4")) |> 
   filter(region == "Sub-Saharan Africa", 
@@ -353,6 +362,7 @@ core_SSA <- wash_data_core |>
     values_to = "Values"
   )
 
+# create an independent table for the data that I'm referencing against
 reference <- tibble(
   Indicators = c("liters_person_day",
                  "persons_per_tap",
@@ -364,6 +374,7 @@ reference <- tibble(
              50)
 )
 
+# join the refernce value to the core_SSA to make it easier in visualization
 core_SSA <- left_join(core_SSA, reference, by = join_by("Indicators"))
 ```
 
@@ -374,6 +385,7 @@ core_SSA <- left_join(core_SSA, reference, by = join_by("Indicators"))
 #| tbl-alt: "A table that lists the international WASH standards being analyzed and their threshold."
 #| tbl-width: 12
 
+# table with the refernece data
 reference |> 
   gt() |> 
   tab_header(
@@ -401,6 +413,7 @@ The red dashed line in each figure represents the UNHCR standard for that indica
 #| fig-width: 9
 #| fig-height: 9
 
+# 4-grid figure to show the averages by country by year for each indicator
 ggplot(data = core_SSA,
        mapping = aes(x = year, 
                      y = Values, 
@@ -414,6 +427,7 @@ ggplot(data = core_SSA,
     linewidth = 1.5,
     color = "red"
   ) +
+  # this is what does the 4 (had to look it up again)
   facet_wrap(~Indicators,
              scales = "free_y",
              labeller = labeller(
@@ -424,6 +438,7 @@ ggplot(data = core_SSA,
                  "persons_per_toilet" = "Persons per Toilet"
                )
              )) +
+  # this color scale is more expansive, includes all countries easily
   scale_color_viridis_d() +
   labs(title = "Average of Indicators by Country",
        subtitle = "Compared against International Standard",
@@ -449,6 +464,7 @@ avg_summary <- core_SSA |>
 ```
 
 ```{r}
+# results table to if the indicators are met or not
 results_fin <- tibble(
   Indicators = c("Liters per Person per Day",
                  "Persons per Tap", 
@@ -466,6 +482,7 @@ Taking this analysis a step further, @fig-subset-data-SSA-location illustrates t
 Again, the red dashed line represents the recommended UNHCR standard. These figures suggest that as refugee camp populations increase, access to WASH resources become more limited. It should also be noted that refugee camps are generally intended to accommodate about 20,000 people. Although this standard is not explicitly shown in the figures, it can be seen that many camps have exceeded that capacity.
 
 ```{r}
+# manipulating the data to make it easier to see stats per refugee camp
 core_SSA_location <- wash_data_core |> 
   mutate(year = substr(report_date, "1", "4")) |> 
   filter(region == "Sub-Saharan Africa", 
@@ -490,6 +507,7 @@ core_SSA_location <- wash_data_core |>
     values_to = "Values"
   )
 
+# joining this with the reference again for ease
 core_SSA_location <- left_join(core_SSA_location, reference, by = join_by("Indicators"))
 ```
 
@@ -501,11 +519,13 @@ core_SSA_location <- left_join(core_SSA_location, reference, by = join_by("Indic
 #| fig-width: 9
 #| fig-height: 9
 
+# 4 figures that show population against each indicator
 ggplot(data = core_SSA_location,
        mapping = aes(x = refugee_pop, 
                      y = Values, 
                      color = country)) +
   geom_point(size=2) +
+  # gives the trend line, lm for regression, se = false gets rid of shading, group makes it so that it looks at all together, not just by country from the color scale
   geom_smooth(
     aes(group = 1, 
         linetype = "Trend"),
@@ -563,6 +583,7 @@ The analysis on this data set would indicate that:
 #| tbl-alt: "A table that lists the WASH indicators and a percentage that represents how many do not meet the international standards."
 #| tbl-width: 9
 
+# everything... final summary
 results_fin |> 
   gt() |> 
   tab_header(

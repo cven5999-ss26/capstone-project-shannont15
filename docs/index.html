@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Shannon Teri">
-<meta name="dcterms.date" content="2026-07-01">
+<meta name="dcterms.date" content="2026-07-17">
 
-<title>WASH Status in Refugee Camps Located in Sub-Saharan Africa</title>
+<title>WASH Status in Refugee Camps</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -76,15 +76,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="fullcontent quarto-light">
+<body class="quarto-light">
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#reading-the-data" id="toc-reading-the-data" class="nav-link" data-scroll-target="#reading-the-data">Reading the Data</a></li>
+  <li><a href="#initial-data-tidying" id="toc-initial-data-tidying" class="nav-link" data-scroll-target="#initial-data-tidying">Initial Data Tidying</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">Conclusions</a>
+  <ul class="collapse">
+  <li><a href="#summary-of-findings" id="toc-summary-of-findings" class="nav-link" data-scroll-target="#summary-of-findings">Summary of Findings</a></li>
+  <li><a href="#questions-and-next-steps" id="toc-questions-and-next-steps" class="nav-link" data-scroll-target="#questions-and-next-steps">Questions and Next Steps</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">WASH Status in Refugee Camps Located in Sub-Saharan Africa</h1>
+<h1 class="title">WASH Status in Refugee Camps</h1>
 </div>
 
 
@@ -108,7 +127,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 1, 2026</p>
+      <p class="date">July 17, 2026</p>
     </div>
   </div>
   
@@ -130,7 +149,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="reading-the-data">Reading the Data</h2>
 <p>The organization openwashdata has created a repository that compiles data collected from the UNHCR Information Management System (IRIS). This data set provides insight into refugee camps, including population size, reporting frequency, access to clean water, and availability of WASH resources such as taps, showers, and toilets.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>unhcr_wash_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/raw/refugee_camp_water_data.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in the raw data</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>unhcr_wash_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/raw/refugee_camp_water_data.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="initial-data-tidying" class="level2">
@@ -207,30 +227,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p><a href="#tbl-data-reported" class="quarto-xref">Table&nbsp;1</a> provides additional insight to the overall status of refugee camps by country, specifically focusing on reporting activity and the conditions for which the camps were established.</p>
 <div class="cell" data-tbl-alt="A table that lists the average statistics on the population, number of reports, reporting period, and percentage of post-emergency camps by country." data-tbl-width="12">
-<div id="tbl-data-reported" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-width="12" data-tbl-alt="A table that lists the average statistics on the population, number of reports, reporting period, and percentage of post-emergency camps by country.">
+<div id="tbl-data-reported" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-alt="A table that lists the average statistics on the population, number of reports, reporting period, and percentage of post-emergency camps by country." data-tbl-width="12">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-data-reported-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
 </figcaption>
 <div aria-describedby="tbl-data-reported-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="mbgaknhopb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#mbgaknhopb table {
+<div id="rfqbdagkor" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rfqbdagkor table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#mbgaknhopb thead, #mbgaknhopb tbody, #mbgaknhopb tfoot, #mbgaknhopb tr, #mbgaknhopb td, #mbgaknhopb th {
+#rfqbdagkor thead, #rfqbdagkor tbody, #rfqbdagkor tfoot, #rfqbdagkor tr, #rfqbdagkor td, #rfqbdagkor th {
   border-style: none;
 }
 
-#mbgaknhopb p {
+#rfqbdagkor p {
   margin: 0;
   padding: 0;
 }
 
-#mbgaknhopb .gt_table {
+#rfqbdagkor .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -256,12 +276,12 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-left-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_caption {
+#rfqbdagkor .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#mbgaknhopb .gt_title {
+#rfqbdagkor .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -273,7 +293,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-bottom-width: 0;
 }
 
-#mbgaknhopb .gt_subtitle {
+#rfqbdagkor .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -285,7 +305,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-top-width: 0;
 }
 
-#mbgaknhopb .gt_heading {
+#rfqbdagkor .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -297,13 +317,13 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-right-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_bottom_border {
+#rfqbdagkor .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_col_headings {
+#rfqbdagkor .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -318,7 +338,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-right-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_col_heading {
+#rfqbdagkor .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -338,7 +358,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   overflow-x: hidden;
 }
 
-#mbgaknhopb .gt_column_spanner_outer {
+#rfqbdagkor .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -350,15 +370,15 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   padding-right: 4px;
 }
 
-#mbgaknhopb .gt_column_spanner_outer:first-child {
+#rfqbdagkor .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#mbgaknhopb .gt_column_spanner_outer:last-child {
+#rfqbdagkor .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#mbgaknhopb .gt_column_spanner {
+#rfqbdagkor .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -370,11 +390,11 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   width: 100%;
 }
 
-#mbgaknhopb .gt_spanner_row {
+#rfqbdagkor .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#mbgaknhopb .gt_group_heading {
+#rfqbdagkor .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -400,7 +420,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   text-align: left;
 }
 
-#mbgaknhopb .gt_empty_group_heading {
+#rfqbdagkor .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -415,15 +435,15 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   vertical-align: middle;
 }
 
-#mbgaknhopb .gt_from_md > :first-child {
+#rfqbdagkor .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#mbgaknhopb .gt_from_md > :last-child {
+#rfqbdagkor .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#mbgaknhopb .gt_row {
+#rfqbdagkor .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -442,7 +462,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   overflow-x: hidden;
 }
 
-#mbgaknhopb .gt_stub {
+#rfqbdagkor .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -455,7 +475,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   padding-right: 5px;
 }
 
-#mbgaknhopb .gt_stub_row_group {
+#rfqbdagkor .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -469,15 +489,15 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   vertical-align: top;
 }
 
-#mbgaknhopb .gt_row_group_first td {
+#rfqbdagkor .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#mbgaknhopb .gt_row_group_first th {
+#rfqbdagkor .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#mbgaknhopb .gt_summary_row {
+#rfqbdagkor .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -487,16 +507,16 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   padding-right: 5px;
 }
 
-#mbgaknhopb .gt_first_summary_row {
+#rfqbdagkor .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_first_summary_row.thick {
+#rfqbdagkor .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#mbgaknhopb .gt_last_summary_row {
+#rfqbdagkor .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -506,7 +526,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-bottom-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_grand_summary_row {
+#rfqbdagkor .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -516,7 +536,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   padding-right: 5px;
 }
 
-#mbgaknhopb .gt_first_grand_summary_row {
+#rfqbdagkor .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -526,7 +546,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-top-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_last_grand_summary_row_top {
+#rfqbdagkor .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -536,11 +556,11 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-bottom-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_striped {
+#rfqbdagkor .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#mbgaknhopb .gt_table_body {
+#rfqbdagkor .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -549,7 +569,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-bottom-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_footnotes {
+#rfqbdagkor .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -563,7 +583,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-right-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_footnote {
+#rfqbdagkor .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -572,7 +592,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   padding-right: 5px;
 }
 
-#mbgaknhopb .gt_sourcenotes {
+#rfqbdagkor .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -586,7 +606,7 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   border-right-color: #D3D3D3;
 }
 
-#mbgaknhopb .gt_sourcenote {
+#rfqbdagkor .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -594,72 +614,72 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
   padding-right: 5px;
 }
 
-#mbgaknhopb .gt_left {
+#rfqbdagkor .gt_left {
   text-align: left;
 }
 
-#mbgaknhopb .gt_center {
+#rfqbdagkor .gt_center {
   text-align: center;
 }
 
-#mbgaknhopb .gt_right {
+#rfqbdagkor .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#mbgaknhopb .gt_font_normal {
+#rfqbdagkor .gt_font_normal {
   font-weight: normal;
 }
 
-#mbgaknhopb .gt_font_bold {
+#rfqbdagkor .gt_font_bold {
   font-weight: bold;
 }
 
-#mbgaknhopb .gt_font_italic {
+#rfqbdagkor .gt_font_italic {
   font-style: italic;
 }
 
-#mbgaknhopb .gt_super {
+#rfqbdagkor .gt_super {
   font-size: 65%;
 }
 
-#mbgaknhopb .gt_footnote_marks {
+#rfqbdagkor .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#mbgaknhopb .gt_asterisk {
+#rfqbdagkor .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#mbgaknhopb .gt_indent_1 {
+#rfqbdagkor .gt_indent_1 {
   text-indent: 5px;
 }
 
-#mbgaknhopb .gt_indent_2 {
+#rfqbdagkor .gt_indent_2 {
   text-indent: 10px;
 }
 
-#mbgaknhopb .gt_indent_3 {
+#rfqbdagkor .gt_indent_3 {
   text-indent: 15px;
 }
 
-#mbgaknhopb .gt_indent_4 {
+#rfqbdagkor .gt_indent_4 {
   text-indent: 20px;
 }
 
-#mbgaknhopb .gt_indent_5 {
+#rfqbdagkor .gt_indent_5 {
   text-indent: 25px;
 }
 
-#mbgaknhopb .katex-display {
+#rfqbdagkor .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#mbgaknhopb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#rfqbdagkor div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -949,8 +969,9 @@ Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
 </div>
 <p>The refined data set was then save as a separate CSV file for future analysis.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(wash_data_core,</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>          here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/processed/refugee_camp_water_data_tidied.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save new file with tidied data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(wash_data_core,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>          here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/processed/refugee_camp_WASH_data_tidied.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -973,30 +994,30 @@ Figure&nbsp;1: Number of Refugee Camps Reported per Year
 </div>
 <p>Because Sub-Saharan Africa contained the largest amount of available data, I further narrowed the analysis to countries within this region. Along with this, <a href="#tbl-baselines" class="quarto-xref">Table&nbsp;2</a> provides the international standards used to evaluate WASH infrastructure in refugee camps.</p>
 <div class="cell" data-tbl-alt="A table that lists the international WASH standards being analyzed and their threshold." data-tbl-width="12">
-<div id="tbl-baselines" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-width="12" data-tbl-alt="A table that lists the international WASH standards being analyzed and their threshold.">
+<div id="tbl-baselines" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-alt="A table that lists the international WASH standards being analyzed and their threshold." data-tbl-width="12">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-baselines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;2: International Standards for WASH Indicators
 </figcaption>
 <div aria-describedby="tbl-baselines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="pvsydfjhus" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#pvsydfjhus table {
+<div id="nxjnprlrke" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#nxjnprlrke table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#pvsydfjhus thead, #pvsydfjhus tbody, #pvsydfjhus tfoot, #pvsydfjhus tr, #pvsydfjhus td, #pvsydfjhus th {
+#nxjnprlrke thead, #nxjnprlrke tbody, #nxjnprlrke tfoot, #nxjnprlrke tr, #nxjnprlrke td, #nxjnprlrke th {
   border-style: none;
 }
 
-#pvsydfjhus p {
+#nxjnprlrke p {
   margin: 0;
   padding: 0;
 }
 
-#pvsydfjhus .gt_table {
+#nxjnprlrke .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1022,12 +1043,12 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-left-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_caption {
+#nxjnprlrke .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#pvsydfjhus .gt_title {
+#nxjnprlrke .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1039,7 +1060,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-bottom-width: 0;
 }
 
-#pvsydfjhus .gt_subtitle {
+#nxjnprlrke .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1051,7 +1072,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-top-width: 0;
 }
 
-#pvsydfjhus .gt_heading {
+#nxjnprlrke .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1063,13 +1084,13 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-right-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_bottom_border {
+#nxjnprlrke .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_col_headings {
+#nxjnprlrke .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1084,7 +1105,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-right-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_col_heading {
+#nxjnprlrke .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1104,7 +1125,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   overflow-x: hidden;
 }
 
-#pvsydfjhus .gt_column_spanner_outer {
+#nxjnprlrke .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1116,15 +1137,15 @@ Table&nbsp;2: International Standards for WASH Indicators
   padding-right: 4px;
 }
 
-#pvsydfjhus .gt_column_spanner_outer:first-child {
+#nxjnprlrke .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#pvsydfjhus .gt_column_spanner_outer:last-child {
+#nxjnprlrke .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#pvsydfjhus .gt_column_spanner {
+#nxjnprlrke .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1136,11 +1157,11 @@ Table&nbsp;2: International Standards for WASH Indicators
   width: 100%;
 }
 
-#pvsydfjhus .gt_spanner_row {
+#nxjnprlrke .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#pvsydfjhus .gt_group_heading {
+#nxjnprlrke .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1166,7 +1187,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   text-align: left;
 }
 
-#pvsydfjhus .gt_empty_group_heading {
+#nxjnprlrke .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1181,15 +1202,15 @@ Table&nbsp;2: International Standards for WASH Indicators
   vertical-align: middle;
 }
 
-#pvsydfjhus .gt_from_md > :first-child {
+#nxjnprlrke .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#pvsydfjhus .gt_from_md > :last-child {
+#nxjnprlrke .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#pvsydfjhus .gt_row {
+#nxjnprlrke .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1208,7 +1229,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   overflow-x: hidden;
 }
 
-#pvsydfjhus .gt_stub {
+#nxjnprlrke .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1221,7 +1242,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   padding-right: 5px;
 }
 
-#pvsydfjhus .gt_stub_row_group {
+#nxjnprlrke .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1235,15 +1256,15 @@ Table&nbsp;2: International Standards for WASH Indicators
   vertical-align: top;
 }
 
-#pvsydfjhus .gt_row_group_first td {
+#nxjnprlrke .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#pvsydfjhus .gt_row_group_first th {
+#nxjnprlrke .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#pvsydfjhus .gt_summary_row {
+#nxjnprlrke .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1253,16 +1274,16 @@ Table&nbsp;2: International Standards for WASH Indicators
   padding-right: 5px;
 }
 
-#pvsydfjhus .gt_first_summary_row {
+#nxjnprlrke .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_first_summary_row.thick {
+#nxjnprlrke .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#pvsydfjhus .gt_last_summary_row {
+#nxjnprlrke .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1272,7 +1293,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-bottom-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_grand_summary_row {
+#nxjnprlrke .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1282,7 +1303,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   padding-right: 5px;
 }
 
-#pvsydfjhus .gt_first_grand_summary_row {
+#nxjnprlrke .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1292,7 +1313,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-top-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_last_grand_summary_row_top {
+#nxjnprlrke .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1302,11 +1323,11 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-bottom-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_striped {
+#nxjnprlrke .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#pvsydfjhus .gt_table_body {
+#nxjnprlrke .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1315,7 +1336,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-bottom-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_footnotes {
+#nxjnprlrke .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1329,7 +1350,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-right-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_footnote {
+#nxjnprlrke .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1338,7 +1359,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   padding-right: 5px;
 }
 
-#pvsydfjhus .gt_sourcenotes {
+#nxjnprlrke .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1352,7 +1373,7 @@ Table&nbsp;2: International Standards for WASH Indicators
   border-right-color: #D3D3D3;
 }
 
-#pvsydfjhus .gt_sourcenote {
+#nxjnprlrke .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1360,72 +1381,72 @@ Table&nbsp;2: International Standards for WASH Indicators
   padding-right: 5px;
 }
 
-#pvsydfjhus .gt_left {
+#nxjnprlrke .gt_left {
   text-align: left;
 }
 
-#pvsydfjhus .gt_center {
+#nxjnprlrke .gt_center {
   text-align: center;
 }
 
-#pvsydfjhus .gt_right {
+#nxjnprlrke .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#pvsydfjhus .gt_font_normal {
+#nxjnprlrke .gt_font_normal {
   font-weight: normal;
 }
 
-#pvsydfjhus .gt_font_bold {
+#nxjnprlrke .gt_font_bold {
   font-weight: bold;
 }
 
-#pvsydfjhus .gt_font_italic {
+#nxjnprlrke .gt_font_italic {
   font-style: italic;
 }
 
-#pvsydfjhus .gt_super {
+#nxjnprlrke .gt_super {
   font-size: 65%;
 }
 
-#pvsydfjhus .gt_footnote_marks {
+#nxjnprlrke .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#pvsydfjhus .gt_asterisk {
+#nxjnprlrke .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#pvsydfjhus .gt_indent_1 {
+#nxjnprlrke .gt_indent_1 {
   text-indent: 5px;
 }
 
-#pvsydfjhus .gt_indent_2 {
+#nxjnprlrke .gt_indent_2 {
   text-indent: 10px;
 }
 
-#pvsydfjhus .gt_indent_3 {
+#nxjnprlrke .gt_indent_3 {
   text-indent: 15px;
 }
 
-#pvsydfjhus .gt_indent_4 {
+#nxjnprlrke .gt_indent_4 {
   text-indent: 20px;
 }
 
-#pvsydfjhus .gt_indent_5 {
+#nxjnprlrke .gt_indent_5 {
   text-indent: 25px;
 }
 
-#pvsydfjhus .katex-display {
+#nxjnprlrke .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#pvsydfjhus div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#nxjnprlrke div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1515,30 +1536,30 @@ Figure&nbsp;3: Refugee Camp Population and Relation to WASH Indicators
 <li><p>Generally, an increase in population leads to a decrease in water resources per person</p></li>
 </ul>
 <div class="cell" data-tbl-alt="A table that lists the WASH indicators and a percentage that represents how many do not meet the international standards." data-tbl-width="9">
-<div id="tbl-indicator-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-width="9" data-tbl-alt="A table that lists the WASH indicators and a percentage that represents how many do not meet the international standards.">
+<div id="tbl-indicator-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-alt="A table that lists the WASH indicators and a percentage that represents how many do not meet the international standards." data-tbl-width="9">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-indicator-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH International Standards
 </figcaption>
 <div aria-describedby="tbl-indicator-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="zaczosqsni" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zaczosqsni table {
+<div id="awbokdafah" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#awbokdafah table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zaczosqsni thead, #zaczosqsni tbody, #zaczosqsni tfoot, #zaczosqsni tr, #zaczosqsni td, #zaczosqsni th {
+#awbokdafah thead, #awbokdafah tbody, #awbokdafah tfoot, #awbokdafah tr, #awbokdafah td, #awbokdafah th {
   border-style: none;
 }
 
-#zaczosqsni p {
+#awbokdafah p {
   margin: 0;
   padding: 0;
 }
 
-#zaczosqsni .gt_table {
+#awbokdafah .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1564,12 +1585,12 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-left-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_caption {
+#awbokdafah .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zaczosqsni .gt_title {
+#awbokdafah .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1581,7 +1602,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-bottom-width: 0;
 }
 
-#zaczosqsni .gt_subtitle {
+#awbokdafah .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1593,7 +1614,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-top-width: 0;
 }
 
-#zaczosqsni .gt_heading {
+#awbokdafah .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1605,13 +1626,13 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-right-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_bottom_border {
+#awbokdafah .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_col_headings {
+#awbokdafah .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1626,7 +1647,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-right-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_col_heading {
+#awbokdafah .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1646,7 +1667,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   overflow-x: hidden;
 }
 
-#zaczosqsni .gt_column_spanner_outer {
+#awbokdafah .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1658,15 +1679,15 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   padding-right: 4px;
 }
 
-#zaczosqsni .gt_column_spanner_outer:first-child {
+#awbokdafah .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zaczosqsni .gt_column_spanner_outer:last-child {
+#awbokdafah .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zaczosqsni .gt_column_spanner {
+#awbokdafah .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1678,11 +1699,11 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   width: 100%;
 }
 
-#zaczosqsni .gt_spanner_row {
+#awbokdafah .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zaczosqsni .gt_group_heading {
+#awbokdafah .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1708,7 +1729,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   text-align: left;
 }
 
-#zaczosqsni .gt_empty_group_heading {
+#awbokdafah .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1723,15 +1744,15 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   vertical-align: middle;
 }
 
-#zaczosqsni .gt_from_md > :first-child {
+#awbokdafah .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zaczosqsni .gt_from_md > :last-child {
+#awbokdafah .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zaczosqsni .gt_row {
+#awbokdafah .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1750,7 +1771,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   overflow-x: hidden;
 }
 
-#zaczosqsni .gt_stub {
+#awbokdafah .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1763,7 +1784,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   padding-right: 5px;
 }
 
-#zaczosqsni .gt_stub_row_group {
+#awbokdafah .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1777,15 +1798,15 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   vertical-align: top;
 }
 
-#zaczosqsni .gt_row_group_first td {
+#awbokdafah .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zaczosqsni .gt_row_group_first th {
+#awbokdafah .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zaczosqsni .gt_summary_row {
+#awbokdafah .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1795,16 +1816,16 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   padding-right: 5px;
 }
 
-#zaczosqsni .gt_first_summary_row {
+#awbokdafah .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_first_summary_row.thick {
+#awbokdafah .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zaczosqsni .gt_last_summary_row {
+#awbokdafah .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1814,7 +1835,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-bottom-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_grand_summary_row {
+#awbokdafah .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1824,7 +1845,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   padding-right: 5px;
 }
 
-#zaczosqsni .gt_first_grand_summary_row {
+#awbokdafah .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1834,7 +1855,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-top-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_last_grand_summary_row_top {
+#awbokdafah .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1844,11 +1865,11 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-bottom-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_striped {
+#awbokdafah .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zaczosqsni .gt_table_body {
+#awbokdafah .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1857,7 +1878,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-bottom-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_footnotes {
+#awbokdafah .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1871,7 +1892,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-right-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_footnote {
+#awbokdafah .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1880,7 +1901,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   padding-right: 5px;
 }
 
-#zaczosqsni .gt_sourcenotes {
+#awbokdafah .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1894,7 +1915,7 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   border-right-color: #D3D3D3;
 }
 
-#zaczosqsni .gt_sourcenote {
+#awbokdafah .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1902,72 +1923,72 @@ Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH Internat
   padding-right: 5px;
 }
 
-#zaczosqsni .gt_left {
+#awbokdafah .gt_left {
   text-align: left;
 }
 
-#zaczosqsni .gt_center {
+#awbokdafah .gt_center {
   text-align: center;
 }
 
-#zaczosqsni .gt_right {
+#awbokdafah .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zaczosqsni .gt_font_normal {
+#awbokdafah .gt_font_normal {
   font-weight: normal;
 }
 
-#zaczosqsni .gt_font_bold {
+#awbokdafah .gt_font_bold {
   font-weight: bold;
 }
 
-#zaczosqsni .gt_font_italic {
+#awbokdafah .gt_font_italic {
   font-style: italic;
 }
 
-#zaczosqsni .gt_super {
+#awbokdafah .gt_super {
   font-size: 65%;
 }
 
-#zaczosqsni .gt_footnote_marks {
+#awbokdafah .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zaczosqsni .gt_asterisk {
+#awbokdafah .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zaczosqsni .gt_indent_1 {
+#awbokdafah .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zaczosqsni .gt_indent_2 {
+#awbokdafah .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zaczosqsni .gt_indent_3 {
+#awbokdafah .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zaczosqsni .gt_indent_4 {
+#awbokdafah .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zaczosqsni .gt_indent_5 {
+#awbokdafah .gt_indent_5 {
   text-indent: 25px;
 }
 
-#zaczosqsni .katex-display {
+#awbokdafah .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#zaczosqsni div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#awbokdafah div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>

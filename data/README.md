@@ -22,12 +22,12 @@
 
 etc.
 
-3.  Date of data collection (single date, range, approximate date): Data collected from 2013-2024.
+3.  Date of data collection (single date, range, approximate date): Data collected between 2013-2024.
 
-4.  Geographic location of data collection: 227 sites spanning 36 countries.
+4.  Geographic location of data collection: 227 sites spanning 36 countries across the global.
 
 5.  Information about funding sources that supported the collection of
-    the data: Funded by Open Research Data Program of the ETH Board and collected from the UNHCR Information Management System (IRIS).
+    the data: Funded by Open Research Data Program of the ETH Board. Collected from the UNHCR Information Management System (IRIS).
 
 ## Sharing / access information
 

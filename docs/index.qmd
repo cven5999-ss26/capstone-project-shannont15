@@ -21,16 +21,20 @@ Looking at the conditions of refugee camps across 36 countries and 227 locations
 
 # Methods
 
+## Reading the Data
+
 ```{r}
 library(tidyverse)
 library(here)
+library(gt)
+library(countrycode)
 
 unhcr_wash_data <- read_csv(here::here("data/raw/refugee_camp_water_data.csv"))
 ```
 
-## Reading the Data
-
 ## Initial Data Tidying
+
+Initial Looks
 
 ```{r}
 # view the first few rows
@@ -47,10 +51,22 @@ country_check <- unhcr_wash_data %>%
   count(country)
 sum(country_check$n)
 # checks! = 6425
+```
 
+Clean the Data
+
+```{r}
 # drop rows that don't have substantial data
 wash_data_lim <- unhcr_wash_data %>% 
   mutate(toilets_per_HH_percentage = coalesce(households_with_toilet, household_toilet)) %>% 
+  mutate(region = countrycode(country,
+         origin = "country.name",
+         destination = "un.regionsub.name")) |> 
+  mutate(region = factor(region, levels = c("Latin America and the Caribbean",
+                                            "Northern Africa",
+                                            "Sub-Saharan Africa",
+                                            "Western Asia",
+                                            "Southern Asia"))) |> 
   filter(!if_all(persons_per_handpump:reporting_annual, is.na)) %>% 
   select(-c(form_id, 
             location_id, 
@@ -75,7 +91,8 @@ wash_data_lim <- unhcr_wash_data %>%
          defecate_in_toilet_HH_perc = defecate_in_toilet,
          access_to_soap_HH_perc = access_to_soap,
          solid_waste_disposal_HH_perc = solid_waste_disposal_access) %>% 
-  relocate(safe_water_perc, .before = safe_water_collect_HH_perc)
+  relocate(safe_water_perc, .before = safe_water_collect_HH_perc) |> 
+  relocate(c(region, country), .before = location_name)
 
 # get a new year column so for better summary
 wash_data_lim <- wash_data_lim |> 
@@ -89,13 +106,46 @@ wash_data_lim <- wash_data_lim |>
 
 wash_data_lim <- wash_data_lim |> 
   select(-c(year, month))
+```
 
-# check size of dataset
-dim(wash_data_lim)
+Cleaned Data Summaries
 
-# check how many empty cells per column
-colSums(is.na(wash_data_lim))
+```{r}
+# summarize by year, but using wash_data_lim to get all countries/locations, yyyy-mm
+wash_data_timeline_lim_full <- wash_data_lim |> 
+  group_by(report_date) |> 
+  summarise(country_count = n_distinct(country),
+            location_count = n_distinct(location_name)) |> 
+  pivot_longer(
+    cols = c(country_count, location_count),
+    names_to = "Measure", 
+    values_to = "Count"
+  ) |> 
+  pivot_wider(
+    names_from = report_date,
+    values_from = Count
+  )
 
+# summarize by year, but using wash_data_lim to get all countries/locations, yyyy
+wash_data_timeline_lim <- wash_data_lim |> 
+  mutate(year = substr(report_date, "1", "4")) |> 
+  group_by(year) |> 
+  summarise(country_count = n_distinct(country),
+            location_count = n_distinct(location_name)) |> 
+  pivot_longer(
+    cols = c(country_count, location_count),
+    names_to = "Measure", 
+    values_to = "Count"
+  ) |> 
+  pivot_wider(
+    names_from = year,
+    values_from = Count
+  )
+```
+
+Core Data Tidy
+
+```{r}
 # get rid of any that are over 3215 cells (half)
 # get rid of columns that only have 6 cells worth of data
 wash_data_core <- wash_data_lim |> 
@@ -112,25 +162,129 @@ wash_data_core <- wash_data_lim |>
 # figure out what data sets aren't viable (not enough information)
 wash_data_core <- wash_data_core |> 
   mutate(not_NA = rowSums(!is.na(wash_data_core))) |> 
-  filter(not_NA > 6)
+  filter(not_NA > 6) |> 
+  relocate(c(liters_per_person_per_day, safe_water_perc), .before = persons_per_shower) |> 
+  relocate(persons_per_hygiene_promoter, .after = toilets_per_HH_percentage)
 
 # get rid of the not_NA column (not needed)
 wash_data_core <- wash_data_core |> 
-  select(-not_NA)
+  select(-c(not_NA, start_date, end_date))
 
+
+```
+
+Core Summaries
+
+```{r}
 # summarize by county
-wash_data_core %>% 
+wash_data_core_summary <- wash_data_core %>% 
   group_by(country) %>% 
   summarise(mean_pop = mean(refugee_pop, na.rm = TRUE),
-            sum_instances = n(),
             sum_cities = n_distinct(location_name),
+            sum_reports = n(),
             sum_report_years = n_distinct(year(start_date)),
-            emergency = mean((post_emergency == "Emergency") * 100),
             post_emergency = mean((post_emergency == "Post-emergency") * 100))
+# anything not "post-emergency" means that it was active during an emergency
 
+wash_data_core_summary |> 
+  gt() |> 
+  tab_header(
+    title = "Refugee Camps by Country",
+    subtitle = "Data Reported bewteen 2013 and 2024"
+  ) |> 
+  fmt_number(
+    columns = mean_pop,
+    decimals = 2
+  ) |> 
+  fmt_number(
+    columns = post_emergency,
+    decimals = 2,
+    suffix = "%"
+  ) |> 
+  cols_label(
+    country = "Country",
+    mean_pop = "Avg Refugee Camp Population",
+    sum_cities = "Number of Refugee Camps",
+    sum_reports = "Number of Reports",
+    sum_report_years = "Number of Years with Reports",
+    post_emergency = "% Refugee Camps Post-Emergency"
+  )
+
+# SUMMARIES OF REPORTING PERIODS BY COUNTRY AND LOCATION (basically showing activity)
+# summarize by year, but only using core for countries/locations being used, yyyy
+wash_data_timeline <- wash_data_core |> 
+  mutate(year = substr(report_date, "1", "4")) |> 
+  group_by(year, region) |> 
+  summarise(country_count = n_distinct(country),
+            location_count = n_distinct(location_name)) # |> 
+  #pivot_longer(
+   # cols = c(country_count, location_count),
+   # names_to = "Measure",
+  #  values_to = "Count"
+  #) |> 
+  #pivot_wider(
+   # names_from = year,
+    #values_from = Count
+  #)
+
+# summarize by year, but only using core for countries/locations being used, yyyy-mm
+wash_data_timeline_full <- wash_data_core |> 
+  group_by(report_date, region) |> 
+  summarise(country_count = n_distinct(country),
+            location_count = n_distinct(location_name)) #|> 
+#  pivot_longer(
+ #   cols = c(country_count, location_count),
+  #  names_to = "Measure",
+   # values_to = "Count"
+#  ) |> 
+ # pivot_wider(
+  #  names_from = report_date,
+   # values_from = Count
+#  )
+```
+
+Initial Visualization
+
+```{r}
+#| label: country_by_year
+#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
+#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
+
+ggplot(data = wash_data_timeline,
+       mapping = aes(x = year,
+                     y = country_count,
+                     fill = region)) +
+  geom_col() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Countries with Refugee Camp Reports per Year", 
+       subtitle = "Identified by Region",
+       x = "Year",
+       y = "Number of Countries",
+       fill = "Region")
+
+#| label: location_by_year
+#| fig-cap: "Figure 2: Number of Refugee Camps Reported per Year"
+#| fig-alt: "Bar chart that of the number of refugee camp reportings per year. Further identified by color for distribution of countries by global region."
+
+ggplot(data = wash_data_timeline,
+       mapping = aes(x = year,
+                     y = location_count,
+                     fill = region)) +
+  geom_col() +
+  scale_fill_brewer(palette = "Set1") +
+  labs(title = "Number of Refugee Camps Reported per Year", 
+       subtitle = "Identified by Region",
+       x = "Year",
+       y = "Number of Refugee Camps",
+       fill = "Region")
+
+```
+
+Write CSV
+
+```{r}
 write_csv(wash_data_lim,
           here::here("data/processed/refugee_camp_water_data_tidied.csv"))
-
 ```
 
 # Results
@@ -142,34 +296,78 @@ Water Supply
 - 20 liters / person / day (by country)
 
 ```{r}
-wash_data_core |> 
-  group_by(country) |> 
+liters20_region <- wash_data_core |> 
+  mutate(year = substr(report_date, "1", "4")) |> 
+  group_by(region, year) |> 
   summarise(liters_per_person_per_day = mean(liters_per_person_per_day, na.rm = TRUE)) |> 
   filter(liters_per_person_per_day != 0)
+
+#| label: country_by_year
+#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
+#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
+
+ggplot(data = liters20_region,
+       mapping = aes(x = year,
+                     y = liters_per_person_per_day, 
+                     color = region,
+                     group = region)) +
+  geom_line() + 
+  geom_point() +
+  scale_color_brewer(palette = "Set2") + 
+  labs(
+    title = "Liters per Person per Day",
+    subtitle = "Identified by Region", 
+    x = "Year", 
+    y = "Liters per Person per Day", 
+    color = "Region"
+  )
 
 ```
 
 - by camp
 
 ```{r}
-wash_data_core |> 
-  group_by(country, location_name) |> 
-  summarise(liters_per_person_per_day = mean(liters_per_person_per_day, na.rm = TRUE)) |> 
+liters20_country <- wash_data_core |> 
+  mutate(year = substr(report_date, "1", "4")) |> 
+  group_by(country, year) |> 
+  summarise(liters_per_person_per_day = mean(liters_per_person_per_day, na.rm = TRUE)) |>
   filter(liters_per_person_per_day != 0)
   # takes out the ones that don't have data (listed at 0)
+
+#| label: country_by_year
+#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
+#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
+
+ggplot(data = liters20_country,
+       mapping = aes(x = year,
+                     y = liters_per_person_per_day, 
+                     color = country,
+                     group = country)) +
+  geom_line() + 
+  geom_point() +
+  scale_color_brewer(palette = "Set2") + 
+  labs(
+    title = "Liters per Person per Day",
+    subtitle = "Identified by Region", 
+    x = "Year", 
+    y = "Liters per Person per Day", 
+    color = "Country"
+  )
 ```
 
-- be within 200 meter walk DONT HAVE THIS DATA
-
-- serve max 100 people
+- serve max 100 people (by county)
 
 ```{r}
 wash_data_core |> 
   group_by(country) |> 
   summarise(persons_per_tap = mean(persons_per_tap, na.rm = TRUE)) |> 
   filter(!is.na(persons_per_tap))
-  # takes away Brazil that didn't have info on this
+# takes away Brazil that didn't have info on this
+```
 
+- serve max 100 people (by camp)
+
+```{r}
 wash_data_core |> 
   group_by(country, location_name) |> 
   summarise(persons_per_tap = mean(persons_per_tap, na.rm = TRUE)) |> 
@@ -180,11 +378,58 @@ Bathrooms:
 
 - 1 bathroom / 20 people
 
-- 1 shower / 50 people
+```{r}
+wash_data_core |> 
+  group_by(country) |> 
+  summarise(persons_per_toilet = mean(persons_per_toilet, na.rm = TRUE)) |> 
+  filter(persons_per_toilet != 0)
+```
+
+- by camp
+
+```{r}
+wash_data_core |> 
+  group_by(country, location_name) |> 
+  summarise(persons_per_toilet = mean(persons_per_toilet, na.rm = TRUE)) |> 
+  filter(persons_per_toilet != 0)
+```
+
+- 1 shower / 50 people (country)
+
+```{r}
+wash_data_core |> 
+  group_by(country) |> 
+  summarise(persons_per_shower = mean(persons_per_shower, na.rm = TRUE)) |> 
+  filter(persons_per_shower != 0)
+```
+
+- by camp
+
+```{r}
+wash_data_core |> 
+  group_by(country, location_name) |> 
+  summarise(persons_per_shower = mean(persons_per_shower, na.rm = TRUE)) |> 
+  filter(persons_per_shower != 0)
+```
 
 Population:
 
+```{r}
+# chart with the mean refugee pop per country
+wash_data_core |> 
+  group_by(country) |> 
+  summarise(refugee_pop = mean(refugee_pop, na.rm = TRUE)) |> 
+  filter(refugee_pop != 0)
+```
+
 - 20,000 people per camp
+
+```{r}
+wash_data_core |> 
+  group_by(country, location_name) |> 
+  summarise(refugee_pop = mean(refugee_pop, na.rm = TRUE)) |> 
+  filter(refugee_pop != 0)
+```
 
 # Conclusions
 

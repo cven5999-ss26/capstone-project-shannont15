@@ -126,6 +126,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="methods" class="level1">
 <h1>Methods</h1>
+<section id="reading-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="reading-the-data">Reading the Data</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -144,7 +146,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stderr">
 <pre><code>here() starts at /cloud/project</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>unhcr_wash_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/raw/refugee_camp_water_data.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(countrycode)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>unhcr_wash_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/raw/refugee_camp_water_data.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Rows: 6425 Columns: 27
 ── Column specification ────────────────────────────────────────────────────────
@@ -157,11 +162,10 @@ date  (3): start_date, end_date, reporting_annual
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
 </div>
-<section id="reading-the-data" class="level2">
-<h2 class="anchored" data-anchor-id="reading-the-data">Reading the Data</h2>
 </section>
 <section id="initial-data-tidying" class="level2">
 <h2 class="anchored" data-anchor-id="initial-data-tidying">Initial Data Tidying</h2>
+<p>Initial Looks</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view the first few rows</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(unhcr_wash_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -213,133 +217,974 @@ date  (3): start_date, end_date, reporting_annual
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6425</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># checks! = 6425</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># drop rows that don't have substantial data</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>wash_data_lim <span class="ot">&lt;-</span> unhcr_wash_data <span class="sc">%&gt;%</span> </span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">toilets_per_HH_percentage =</span> <span class="fu">coalesce</span>(households_with_toilet, household_toilet)) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">if_all</span>(persons_per_handpump<span class="sc">:</span>reporting_annual, is.na)) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(form_id, </span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>            location_id, </span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>            reporting_monthly, </span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>            reporting_annual, </span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>            household_toilet, </span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>            households_with_toilet)) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(refugee_pop, <span class="at">.before =</span> persons_per_handpump) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(<span class="fu">c</span>(persons_per_shower, </span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>             persons_per_hygiene_promoter, </span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>             persons_per_toilet), <span class="at">.before =</span> liters_per_person_per_day) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(liters_per_person_household, <span class="at">.after =</span> liters_per_person_per_day) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(<span class="fu">c</span>(defecate_in_toilet, </span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>             toilets_per_HH_percentage, </span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>             solid_waste_disposal_access, </span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>             menstrual_hygiene_satisfaction, </span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>             access_to_soap), <span class="at">.after =</span> persons_per_toilet) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">safe_water_perc =</span> chlorinated_safe_water_quality,</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>         <span class="at">liters_per_HH_per_day =</span> liters_per_person_household,</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>         <span class="at">storage10L_HH_perc =</span> potable_water_storage_10l,</span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>         <span class="at">safe_water_collect_HH_perc =</span> protected_water_sources,</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>         <span class="at">defecate_in_toilet_HH_perc =</span> defecate_in_toilet,</span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>         <span class="at">access_to_soap_HH_perc =</span> access_to_soap,</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>         <span class="at">solid_waste_disposal_HH_perc =</span> solid_waste_disposal_access) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(safe_water_perc, <span class="at">.before =</span> safe_water_collect_HH_perc)</span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="co"># get a new year column so for better summary</span></span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>wash_data_lim <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(start_date),</span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>         <span class="at">month =</span> <span class="fu">month</span>(start_date <span class="sc">+</span> (end_date <span class="sc">-</span> start_date) <span class="sc">/</span> <span class="dv">2</span>))</span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>wash_data_lim <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
-<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">report_date =</span> <span class="fu">sprintf</span>(<span class="st">"%d-%02d"</span>, year, month)) <span class="sc">|&gt;</span> </span>
-<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(report_date, <span class="at">.before =</span> start_date)</span>
-<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a><span class="co"># some are a bit weird, but when checking against later dataset, they are excluded</span></span>
-<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>wash_data_lim <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
-<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(year, month))</span>
-<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a><span class="co"># check size of dataset</span></span>
-<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(wash_data_lim)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 6423   23</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># checks! = 6425</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check how many empty cells per column</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(wash_data_lim))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                   report_date                     start_date 
-                             0                              0 
-                      end_date                  location_name 
-                             0                              0 
-                       country                 post_emergency 
-                             0                            388 
-                   refugee_pop           persons_per_handpump 
-                           453                           4363 
-               persons_per_tap             persons_per_shower 
-                          1816                           2046 
-  persons_per_hygiene_promoter             persons_per_toilet 
-                          1077                            478 
-    defecate_in_toilet_HH_perc      toilets_per_HH_percentage 
-                          6076                            657 
-  solid_waste_disposal_HH_perc menstrual_hygiene_satisfaction 
-                          6100                           6224 
-        access_to_soap_HH_perc      liters_per_person_per_day 
-                          6079                            466 
-         liters_per_HH_per_day          non_chlorinated_0_cfu 
-                          6076                           4619 
-            storage10L_HH_perc                safe_water_perc 
-                          6119                           2683 
-    safe_water_collect_HH_perc 
-                          6088 </code></pre>
+<p>Clean the Data</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># drop rows that don't have substantial data</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>wash_data_lim <span class="ot">&lt;-</span> unhcr_wash_data <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">toilets_per_HH_percentage =</span> <span class="fu">coalesce</span>(households_with_toilet, household_toilet)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">region =</span> <span class="fu">countrycode</span>(country,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">origin =</span> <span class="st">"country.name"</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">destination =</span> <span class="st">"un.regionsub.name"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">region =</span> <span class="fu">factor</span>(region, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Latin America and the Caribbean"</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                                            <span class="st">"Northern Africa"</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>                                            <span class="st">"Sub-Saharan Africa"</span>,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>                                            <span class="st">"Western Asia"</span>,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                                            <span class="st">"Southern Asia"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">if_all</span>(persons_per_handpump<span class="sc">:</span>reporting_annual, is.na)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(form_id, </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>            location_id, </span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>            reporting_monthly, </span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>            reporting_annual, </span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>            household_toilet, </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>            households_with_toilet)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(refugee_pop, <span class="at">.before =</span> persons_per_handpump) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(<span class="fu">c</span>(persons_per_shower, </span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>             persons_per_hygiene_promoter, </span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>             persons_per_toilet), <span class="at">.before =</span> liters_per_person_per_day) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(liters_per_person_household, <span class="at">.after =</span> liters_per_person_per_day) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(<span class="fu">c</span>(defecate_in_toilet, </span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>             toilets_per_HH_percentage, </span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>             solid_waste_disposal_access, </span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>             menstrual_hygiene_satisfaction, </span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>             access_to_soap), <span class="at">.after =</span> persons_per_toilet) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">safe_water_perc =</span> chlorinated_safe_water_quality,</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>         <span class="at">liters_per_HH_per_day =</span> liters_per_person_household,</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>         <span class="at">storage10L_HH_perc =</span> potable_water_storage_10l,</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>         <span class="at">safe_water_collect_HH_perc =</span> protected_water_sources,</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>         <span class="at">defecate_in_toilet_HH_perc =</span> defecate_in_toilet,</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>         <span class="at">access_to_soap_HH_perc =</span> access_to_soap,</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>         <span class="at">solid_waste_disposal_HH_perc =</span> solid_waste_disposal_access) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(safe_water_perc, <span class="at">.before =</span> safe_water_collect_HH_perc) <span class="sc">|&gt;</span> </span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(<span class="fu">c</span>(region, country), <span class="at">.before =</span> location_name)</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a><span class="co"># get a new year column so for better summary</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>wash_data_lim <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(start_date),</span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>         <span class="at">month =</span> <span class="fu">month</span>(start_date <span class="sc">+</span> (end_date <span class="sc">-</span> start_date) <span class="sc">/</span> <span class="dv">2</span>))</span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>wash_data_lim <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">report_date =</span> <span class="fu">sprintf</span>(<span class="st">"%d-%02d"</span>, year, month)) <span class="sc">|&gt;</span> </span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(report_date, <span class="at">.before =</span> start_date)</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a><span class="co"># some are a bit weird, but when checking against later dataset, they are excluded</span></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>wash_data_lim <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(year, month))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of any that are over 3215 cells (half)</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of columns that only have 6 cells worth of data</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(persons_per_handpump, </span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>            defecate_in_toilet_HH_perc, </span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>            solid_waste_disposal_HH_perc,</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            menstrual_hygiene_satisfaction, </span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            access_to_soap_HH_perc, </span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>            liters_per_HH_per_day, </span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>            non_chlorinated_0_cfu, </span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>            storage10L_HH_perc, </span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>            safe_water_collect_HH_perc))</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co"># figure out what data sets aren't viable (not enough information)</span></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="ot">&lt;-</span> wash_data_core <span class="sc">|&gt;</span> </span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">not_NA =</span> <span class="fu">rowSums</span>(<span class="sc">!</span><span class="fu">is.na</span>(wash_data_core))) <span class="sc">|&gt;</span> </span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(not_NA <span class="sc">&gt;</span> <span class="dv">6</span>)</span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of the not_NA column (not needed)</span></span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="ot">&lt;-</span> wash_data_core <span class="sc">|&gt;</span> </span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>not_NA)</span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize by county</span></span>
-<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">%&gt;%</span> </span>
-<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">%&gt;%</span> </span>
-<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_pop =</span> <span class="fu">mean</span>(refugee_pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>            <span class="at">sum_instances =</span> <span class="fu">n</span>(),</span>
-<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>            <span class="at">sum_cities =</span> <span class="fu">n_distinct</span>(location_name),</span>
-<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>            <span class="at">sum_report_years =</span> <span class="fu">n_distinct</span>(<span class="fu">year</span>(start_date)),</span>
-<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>            <span class="at">emergency =</span> <span class="fu">mean</span>((post_emergency <span class="sc">==</span> <span class="st">"Emergency"</span>) <span class="sc">*</span> <span class="dv">100</span>),</span>
-<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>            <span class="at">post_emergency =</span> <span class="fu">mean</span>((post_emergency <span class="sc">==</span> <span class="st">"Post-emergency"</span>) <span class="sc">*</span> <span class="dv">100</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 31 × 7
-   country          mean_pop sum_instances sum_cities sum_report_years emergency
-   &lt;chr&gt;               &lt;dbl&gt;         &lt;int&gt;      &lt;int&gt;            &lt;int&gt;     &lt;dbl&gt;
- 1 Algeria            17967.           228          5                5     0    
- 2 Angola              6883.            44          1                6     0    
- 3 Bangladesh         24742.            15         13                2     0    
- 4 Brazil               544.            15         10                2   100    
- 5 Burkina Faso        6755.            21          2                3     0    
- 6 Burundi            10881.             8          4                2     0    
- 7 Cameroon           17331.           424          8                6     0    
- 8 Chad               17603.           880         32                7     0.227
- 9 Colombia             438.            16          1                3    87.5  
-10 Democratic Repu…   14326.           254         12                5     0.394
-# ℹ 21 more rows
-# ℹ 1 more variable: post_emergency &lt;dbl&gt;</code></pre>
+<p>Cleaned Data Summaries</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize by year, but using wash_data_lim to get all countries/locations, yyyy-mm</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>wash_data_timeline_lim_full <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(report_date) <span class="sc">|&gt;</span> </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">country_count =</span> <span class="fu">n_distinct</span>(country),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">location_count =</span> <span class="fu">n_distinct</span>(location_name)) <span class="sc">|&gt;</span> </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(country_count, location_count),</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Measure"</span>, </span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Count"</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> report_date,</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> Count</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize by year, but using wash_data_lim to get all countries/locations, yyyy</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>wash_data_timeline_lim <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">substr</span>(report_date, <span class="st">"1"</span>, <span class="st">"4"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(year) <span class="sc">|&gt;</span> </span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">country_count =</span> <span class="fu">n_distinct</span>(country),</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">location_count =</span> <span class="fu">n_distinct</span>(location_name)) <span class="sc">|&gt;</span> </span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(country_count, location_count),</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Measure"</span>, </span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Count"</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> year,</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> Count</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(wash_data_lim,</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>          here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/processed/refugee_camp_water_data_tidied.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Core Data Tidy</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of any that are over 3215 cells (half)</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of columns that only have 6 cells worth of data</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="ot">&lt;-</span> wash_data_lim <span class="sc">|&gt;</span> </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(persons_per_handpump, </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>            defecate_in_toilet_HH_perc, </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>            solid_waste_disposal_HH_perc,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>            menstrual_hygiene_satisfaction, </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>            access_to_soap_HH_perc, </span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>            liters_per_HH_per_day, </span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>            non_chlorinated_0_cfu, </span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>            storage10L_HH_perc, </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>            safe_water_collect_HH_perc))</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="co"># figure out what data sets aren't viable (not enough information)</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="ot">&lt;-</span> wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">not_NA =</span> <span class="fu">rowSums</span>(<span class="sc">!</span><span class="fu">is.na</span>(wash_data_core))) <span class="sc">|&gt;</span> </span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(not_NA <span class="sc">&gt;</span> <span class="dv">6</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(<span class="fu">c</span>(liters_per_person_per_day, safe_water_perc), <span class="at">.before =</span> persons_per_shower) <span class="sc">|&gt;</span> </span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(persons_per_hygiene_promoter, <span class="at">.after =</span> toilets_per_HH_percentage)</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="co"># get rid of the not_NA column (not needed)</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="ot">&lt;-</span> wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>not_NA)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Core Summaries</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize by county</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>wash_data_core_summary <span class="ot">&lt;-</span> wash_data_core <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_pop =</span> <span class="fu">mean</span>(refugee_pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">sum_cities =</span> <span class="fu">n_distinct</span>(location_name),</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">sum_reports =</span> <span class="fu">n</span>(),</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">sum_report_years =</span> <span class="fu">n_distinct</span>(<span class="fu">year</span>(start_date)),</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">post_emergency =</span> <span class="fu">mean</span>((post_emergency <span class="sc">==</span> <span class="st">"Post-emergency"</span>) <span class="sc">*</span> <span class="dv">100</span>))</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co"># anything not "post-emergency" means that it was active during an emergency</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>wash_data_core_summary <span class="sc">|&gt;</span> </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Refugee Camps by Country"</span>,</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Data Reported bewteen 2013 and 2024"</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> mean_pop,</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">2</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> post_emergency,</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">2</span>,</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">suffix =</span> <span class="st">"%"</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">country =</span> <span class="st">"Country"</span>,</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_pop =</span> <span class="st">"Avg Refugee Camp Population"</span>,</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">sum_cities =</span> <span class="st">"Number of Refugee Camps"</span>,</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">sum_reports =</span> <span class="st">"Number of Reports"</span>,</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">sum_report_years =</span> <span class="st">"Number of Years with Reports"</span>,</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">post_emergency =</span> <span class="st">"% Refugee Camps Post-Emergency"</span></span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="amkabsutuw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#amkabsutuw table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#amkabsutuw thead, #amkabsutuw tbody, #amkabsutuw tfoot, #amkabsutuw tr, #amkabsutuw td, #amkabsutuw th {
+  border-style: none;
+}
+
+#amkabsutuw p {
+  margin: 0;
+  padding: 0;
+}
+
+#amkabsutuw .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#amkabsutuw .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#amkabsutuw .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#amkabsutuw .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#amkabsutuw .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#amkabsutuw .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#amkabsutuw .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#amkabsutuw .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#amkabsutuw .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#amkabsutuw .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#amkabsutuw .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#amkabsutuw .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#amkabsutuw .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#amkabsutuw .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#amkabsutuw .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amkabsutuw .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#amkabsutuw .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#amkabsutuw .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#amkabsutuw .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amkabsutuw .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#amkabsutuw .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amkabsutuw .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#amkabsutuw .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amkabsutuw .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#amkabsutuw .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#amkabsutuw .gt_left {
+  text-align: left;
+}
+
+#amkabsutuw .gt_center {
+  text-align: center;
+}
+
+#amkabsutuw .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#amkabsutuw .gt_font_normal {
+  font-weight: normal;
+}
+
+#amkabsutuw .gt_font_bold {
+  font-weight: bold;
+}
+
+#amkabsutuw .gt_font_italic {
+  font-style: italic;
+}
+
+#amkabsutuw .gt_super {
+  font-size: 65%;
+}
+
+#amkabsutuw .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#amkabsutuw .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#amkabsutuw .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#amkabsutuw .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#amkabsutuw .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#amkabsutuw .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#amkabsutuw .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#amkabsutuw .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#amkabsutuw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<td colspan="6" class="gt_heading gt_title gt_font_normal">Refugee Camps by Country</td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="6" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Data Reported bewteen 2013 and 2024</td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="country" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Country</th>
+<th id="mean_pop" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Avg Refugee Camp Population</th>
+<th id="sum_cities" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Number of Refugee Camps</th>
+<th id="sum_reports" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Number of Reports</th>
+<th id="sum_report_years" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Number of Years with Reports</th>
+<th id="post_emergency" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">% Refugee Camps Post-Emergency</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Algeria</td>
+<td class="gt_row gt_right" headers="mean_pop">17,967.12</td>
+<td class="gt_row gt_right" headers="sum_cities">5</td>
+<td class="gt_row gt_right" headers="sum_reports">248</td>
+<td class="gt_row gt_right" headers="sum_report_years">6</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Angola</td>
+<td class="gt_row gt_right" headers="mean_pop">6,882.89</td>
+<td class="gt_row gt_right" headers="sum_cities">1</td>
+<td class="gt_row gt_right" headers="sum_reports">44</td>
+<td class="gt_row gt_right" headers="sum_report_years">6</td>
+<td class="gt_row gt_right" headers="post_emergency">100.00</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Bangladesh</td>
+<td class="gt_row gt_right" headers="mean_pop">24,741.60</td>
+<td class="gt_row gt_right" headers="sum_cities">13</td>
+<td class="gt_row gt_right" headers="sum_reports">53</td>
+<td class="gt_row gt_right" headers="sum_report_years">6</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Brazil</td>
+<td class="gt_row gt_right" headers="mean_pop">544.27</td>
+<td class="gt_row gt_right" headers="sum_cities">10</td>
+<td class="gt_row gt_right" headers="sum_reports">15</td>
+<td class="gt_row gt_right" headers="sum_report_years">2</td>
+<td class="gt_row gt_right" headers="post_emergency">0.00</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Burkina Faso</td>
+<td class="gt_row gt_right" headers="mean_pop">6,755.45</td>
+<td class="gt_row gt_right" headers="sum_cities">2</td>
+<td class="gt_row gt_right" headers="sum_reports">23</td>
+<td class="gt_row gt_right" headers="sum_report_years">4</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Burundi</td>
+<td class="gt_row gt_right" headers="mean_pop">10,880.62</td>
+<td class="gt_row gt_right" headers="sum_cities">4</td>
+<td class="gt_row gt_right" headers="sum_reports">8</td>
+<td class="gt_row gt_right" headers="sum_report_years">2</td>
+<td class="gt_row gt_right" headers="post_emergency">100.00</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Cameroon</td>
+<td class="gt_row gt_right" headers="mean_pop">17,331.22</td>
+<td class="gt_row gt_right" headers="sum_cities">8</td>
+<td class="gt_row gt_right" headers="sum_reports">450</td>
+<td class="gt_row gt_right" headers="sum_report_years">7</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Chad</td>
+<td class="gt_row gt_right" headers="mean_pop">17,602.63</td>
+<td class="gt_row gt_right" headers="sum_cities">32</td>
+<td class="gt_row gt_right" headers="sum_reports">926</td>
+<td class="gt_row gt_right" headers="sum_report_years">8</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Colombia</td>
+<td class="gt_row gt_right" headers="mean_pop">438.12</td>
+<td class="gt_row gt_right" headers="sum_cities">1</td>
+<td class="gt_row gt_right" headers="sum_reports">16</td>
+<td class="gt_row gt_right" headers="sum_report_years">3</td>
+<td class="gt_row gt_right" headers="post_emergency">12.50</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Democratic Republic of the Congo</td>
+<td class="gt_row gt_right" headers="mean_pop">14,325.81</td>
+<td class="gt_row gt_right" headers="sum_cities">12</td>
+<td class="gt_row gt_right" headers="sum_reports">265</td>
+<td class="gt_row gt_right" headers="sum_report_years">5</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Djibouti</td>
+<td class="gt_row gt_right" headers="mean_pop">12,793.71</td>
+<td class="gt_row gt_right" headers="sum_cities">2</td>
+<td class="gt_row gt_right" headers="sum_reports">72</td>
+<td class="gt_row gt_right" headers="sum_report_years">5</td>
+<td class="gt_row gt_right" headers="post_emergency">100.00</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Ethiopia</td>
+<td class="gt_row gt_right" headers="mean_pop">33,585.71</td>
+<td class="gt_row gt_right" headers="sum_cities">27</td>
+<td class="gt_row gt_right" headers="sum_reports">971</td>
+<td class="gt_row gt_right" headers="sum_report_years">10</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Ghana</td>
+<td class="gt_row gt_right" headers="mean_pop">1,531.47</td>
+<td class="gt_row gt_right" headers="sum_cities">4</td>
+<td class="gt_row gt_right" headers="sum_reports">130</td>
+<td class="gt_row gt_right" headers="sum_report_years">5</td>
+<td class="gt_row gt_right" headers="post_emergency">100.00</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Iraq</td>
+<td class="gt_row gt_right" headers="mean_pop">7,166.33</td>
+<td class="gt_row gt_right" headers="sum_cities">5</td>
+<td class="gt_row gt_right" headers="sum_reports">249</td>
+<td class="gt_row gt_right" headers="sum_report_years">8</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Jordan</td>
+<td class="gt_row gt_right" headers="mean_pop">59,953.33</td>
+<td class="gt_row gt_right" headers="sum_cities">2</td>
+<td class="gt_row gt_right" headers="sum_reports">27</td>
+<td class="gt_row gt_right" headers="sum_report_years">2</td>
+<td class="gt_row gt_right" headers="post_emergency">100.00</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Kenya</td>
+<td class="gt_row gt_right" headers="mean_pop">88,838.18</td>
+<td class="gt_row gt_right" headers="sum_cities">4</td>
+<td class="gt_row gt_right" headers="sum_reports">215</td>
+<td class="gt_row gt_right" headers="sum_report_years">8</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Malawi</td>
+<td class="gt_row gt_right" headers="mean_pop">48,909.65</td>
+<td class="gt_row gt_right" headers="sum_cities">1</td>
+<td class="gt_row gt_right" headers="sum_reports">69</td>
+<td class="gt_row gt_right" headers="sum_report_years">6</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Mozambique</td>
+<td class="gt_row gt_right" headers="mean_pop">9,328.15</td>
+<td class="gt_row gt_right" headers="sum_cities">1</td>
+<td class="gt_row gt_right" headers="sum_reports">22</td>
+<td class="gt_row gt_right" headers="sum_report_years">5</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Namibia</td>
+<td class="gt_row gt_right" headers="mean_pop">5,160.20</td>
+<td class="gt_row gt_right" headers="sum_cities">1</td>
+<td class="gt_row gt_right" headers="sum_reports">6</td>
+<td class="gt_row gt_right" headers="sum_report_years">3</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Nepal</td>
+<td class="gt_row gt_right" headers="mean_pop">5,806.00</td>
+<td class="gt_row gt_right" headers="sum_cities">1</td>
+<td class="gt_row gt_right" headers="sum_reports">1</td>
+<td class="gt_row gt_right" headers="sum_report_years">1</td>
+<td class="gt_row gt_right" headers="post_emergency">100.00</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Niger</td>
+<td class="gt_row gt_right" headers="mean_pop">8,650.27</td>
+<td class="gt_row gt_right" headers="sum_cities">9</td>
+<td class="gt_row gt_right" headers="sum_reports">341</td>
+<td class="gt_row gt_right" headers="sum_report_years">9</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Nigeria</td>
+<td class="gt_row gt_right" headers="mean_pop">8,617.13</td>
+<td class="gt_row gt_right" headers="sum_cities">4</td>
+<td class="gt_row gt_right" headers="sum_reports">79</td>
+<td class="gt_row gt_right" headers="sum_report_years">5</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Pakistan</td>
+<td class="gt_row gt_right" headers="mean_pop">8,948.00</td>
+<td class="gt_row gt_right" headers="sum_cities">1</td>
+<td class="gt_row gt_right" headers="sum_reports">1</td>
+<td class="gt_row gt_right" headers="sum_report_years">1</td>
+<td class="gt_row gt_right" headers="post_emergency">100.00</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Republic of Congo</td>
+<td class="gt_row gt_right" headers="mean_pop">2,464.35</td>
+<td class="gt_row gt_right" headers="sum_cities">2</td>
+<td class="gt_row gt_right" headers="sum_reports">21</td>
+<td class="gt_row gt_right" headers="sum_report_years">6</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Rwanda</td>
+<td class="gt_row gt_right" headers="mean_pop">18,167.05</td>
+<td class="gt_row gt_right" headers="sum_cities">10</td>
+<td class="gt_row gt_right" headers="sum_reports">430</td>
+<td class="gt_row gt_right" headers="sum_report_years">8</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Somalia</td>
+<td class="gt_row gt_right" headers="mean_pop">NaN</td>
+<td class="gt_row gt_right" headers="sum_cities">1</td>
+<td class="gt_row gt_right" headers="sum_reports">1</td>
+<td class="gt_row gt_right" headers="sum_report_years">1</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">South Sudan</td>
+<td class="gt_row gt_right" headers="mean_pop">39,863.06</td>
+<td class="gt_row gt_right" headers="sum_cities">7</td>
+<td class="gt_row gt_right" headers="sum_reports">238</td>
+<td class="gt_row gt_right" headers="sum_report_years">7</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Sudan</td>
+<td class="gt_row gt_right" headers="mean_pop">17,063.46</td>
+<td class="gt_row gt_right" headers="sum_cities">32</td>
+<td class="gt_row gt_right" headers="sum_reports">787</td>
+<td class="gt_row gt_right" headers="sum_report_years">7</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Tanzania</td>
+<td class="gt_row gt_right" headers="mean_pop">64,640.52</td>
+<td class="gt_row gt_right" headers="sum_cities">5</td>
+<td class="gt_row gt_right" headers="sum_reports">206</td>
+<td class="gt_row gt_right" headers="sum_report_years">8</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Uganda</td>
+<td class="gt_row gt_right" headers="mean_pop">108,457.13</td>
+<td class="gt_row gt_right" headers="sum_cities">10</td>
+<td class="gt_row gt_right" headers="sum_reports">370</td>
+<td class="gt_row gt_right" headers="sum_report_years">6</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="country">Zambia</td>
+<td class="gt_row gt_right" headers="mean_pop">16,532.62</td>
+<td class="gt_row gt_right" headers="sum_cities">3</td>
+<td class="gt_row gt_right" headers="sum_reports">56</td>
+<td class="gt_row gt_right" headers="sum_report_years">5</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="country">Zimbabwe</td>
+<td class="gt_row gt_right" headers="mean_pop">14,563.81</td>
+<td class="gt_row gt_right" headers="sum_cities">1</td>
+<td class="gt_row gt_right" headers="sum_reports">36</td>
+<td class="gt_row gt_right" headers="sum_report_years">6</td>
+<td class="gt_row gt_right" headers="post_emergency">NA</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SUMMARIES OF REPORTING PERIODS BY COUNTRY AND LOCATION (basically showing activity)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize by year, but only using core for countries/locations being used, yyyy</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>wash_data_timeline <span class="ot">&lt;-</span> wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">substr</span>(report_date, <span class="st">"1"</span>, <span class="st">"4"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(year, region) <span class="sc">|&gt;</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">country_count =</span> <span class="fu">n_distinct</span>(country),</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">location_count =</span> <span class="fu">n_distinct</span>(location_name)) <span class="co"># |&gt; </span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by year and region.
+ℹ Output is grouped by year.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(year, region))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>  <span class="co">#pivot_longer(</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>   <span class="co"># cols = c(country_count, location_count),</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>   <span class="co"># names_to = "Measure",</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  values_to = "Count"</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#) |&gt; </span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#pivot_wider(</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>   <span class="co"># names_from = year,</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">#values_from = Count</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#)</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize by year, but only using core for countries/locations being used, yyyy-mm</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>wash_data_timeline_full <span class="ot">&lt;-</span> wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(report_date, region) <span class="sc">|&gt;</span> </span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">country_count =</span> <span class="fu">n_distinct</span>(country),</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">location_count =</span> <span class="fu">n_distinct</span>(location_name)) <span class="co">#|&gt; </span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by report_date and region.
+ℹ Output is grouped by report_date.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(report_date, region))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#  pivot_longer(</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a> <span class="co">#   cols = c(country_count, location_count),</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  names_to = "Measure",</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>   <span class="co"># values_to = "Count"</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  ) |&gt; </span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a> <span class="co"># pivot_wider(</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  names_from = report_date,</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>   <span class="co"># values_from = Count</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  )</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Initial Visualization</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> wash_data_timeline,</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> year,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> country_count,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">fill =</span> region)) <span class="sc">+</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Countries with Refugee Camp Reports per Year"</span>, </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Identified by Region"</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Number of Countries"</span>,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Region"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> wash_data_timeline,</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> year,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> location_count,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">fill =</span> region)) <span class="sc">+</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Total Number of Refugee Camps Reported Each Year"</span>, </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Identified by Region"</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Number of Refugee Camps"</span>,</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Region"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Write CSV</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(wash_data_lim,</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>          here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/processed/refugee_camp_water_data_tidied.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -351,10 +1196,10 @@ date  (3): start_date, end_date, reporting_annual
 <li>20 liters / person / day (by country)</li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span> </span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">liters_per_person_per_day =</span> <span class="fu">mean</span>(liters_per_person_per_day, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(liters_per_person_per_day <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">liters_per_person_per_day =</span> <span class="fu">mean</span>(liters_per_person_per_day, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(liters_per_person_per_day <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 31 × 2
    country                          liters_per_person_per_day
@@ -376,10 +1221,10 @@ date  (3): start_date, end_date, reporting_annual
 <li>by camp</li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, location_name) <span class="sc">|&gt;</span> </span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">liters_per_person_per_day =</span> <span class="fu">mean</span>(liters_per_person_per_day, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(liters_per_person_per_day <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, location_name) <span class="sc">|&gt;</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">liters_per_person_per_day =</span> <span class="fu">mean</span>(liters_per_person_per_day, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(liters_per_person_per_day <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has regrouped the output.
 ℹ Summaries were computed grouped by country and location_name.
@@ -405,17 +1250,16 @@ date  (3): start_date, end_date, reporting_annual
 10 Bangladesh Camp 26                               21  
 # ℹ 196 more rows</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># takes out the ones that don't have data (listed at 0)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># takes out the ones that don't have data (listed at 0)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <ul>
-<li><p>be within 200 meter walk DONT HAVE THIS DATA</p></li>
-<li><p>serve max 100 people</p></li>
+<li>serve max 100 people (by county)</li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span> </span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">persons_per_tap =</span> <span class="fu">mean</span>(persons_per_tap, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(persons_per_tap))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span> </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">persons_per_tap =</span> <span class="fu">mean</span>(persons_per_tap, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(persons_per_tap))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 30 × 2
    country                          persons_per_tap
@@ -432,12 +1276,16 @@ date  (3): start_date, end_date, reporting_annual
 10 Djibouti                                    78.6
 # ℹ 20 more rows</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># takes away Brazil that didn't have info on this</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, location_name) <span class="sc">|&gt;</span> </span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">persons_per_tap =</span> <span class="fu">mean</span>(persons_per_tap, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(persons_per_tap <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># takes away Brazil that didn't have info on this</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>serve max 100 people (by camp)</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, location_name) <span class="sc">|&gt;</span> </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">persons_per_tap =</span> <span class="fu">mean</span>(persons_per_tap, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(persons_per_tap <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has regrouped the output.
 ℹ Summaries were computed grouped by country and location_name.
@@ -466,13 +1314,181 @@ date  (3): start_date, end_date, reporting_annual
 </div>
 <p>Bathrooms:</p>
 <ul>
-<li><p>1 bathroom / 20 people</p></li>
-<li><p>1 shower / 50 people</p></li>
+<li>1 bathroom / 20 people</li>
 </ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span> </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">persons_per_toilet =</span> <span class="fu">mean</span>(persons_per_toilet, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(persons_per_toilet <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 30 × 2
+   country                          persons_per_toilet
+   &lt;chr&gt;                                         &lt;dbl&gt;
+ 1 Algeria                                        4.97
+ 2 Angola                                         6.34
+ 3 Bangladesh                                    20.4 
+ 4 Brazil                                        19.3 
+ 5 Burkina Faso                                  24.8 
+ 6 Burundi                                       16.4 
+ 7 Cameroon                                      15.0 
+ 8 Chad                                          23.0 
+ 9 Colombia                                       9.38
+10 Democratic Republic of the Congo              18.4 
+# ℹ 20 more rows</code></pre>
+</div>
+</div>
+<ul>
+<li>by camp</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, location_name) <span class="sc">|&gt;</span> </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">persons_per_toilet =</span> <span class="fu">mean</span>(persons_per_toilet, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(persons_per_toilet <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by country and location_name.
+ℹ Output is grouped by country.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(country, location_name))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 211 × 3
+# Groups:   country [30]
+   country    location_name    persons_per_toilet
+   &lt;chr&gt;      &lt;chr&gt;                         &lt;dbl&gt;
+ 1 Algeria    Auserd                         4.98
+ 2 Algeria    Boujdour                       4.89
+ 3 Algeria    Dakhla                         5   
+ 4 Algeria    Layounne                       5   
+ 5 Algeria    Smara                          5   
+ 6 Angola     Lovua settlement               6.34
+ 7 Bangladesh Camp 17                       14   
+ 8 Bangladesh Camp 1E                       28   
+ 9 Bangladesh Camp 21                       16   
+10 Bangladesh Camp 26                       23   
+# ℹ 201 more rows</code></pre>
+</div>
+</div>
+<ul>
+<li>1 shower / 50 people (country)</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span> </span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">persons_per_shower =</span> <span class="fu">mean</span>(persons_per_shower, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(persons_per_shower <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 26 × 2
+   country                          persons_per_shower
+   &lt;chr&gt;                                         &lt;dbl&gt;
+ 1 Algeria                                        4.38
+ 2 Angola                                        12.7 
+ 3 Bangladesh                                    51.3 
+ 4 Brazil                                        20.1 
+ 5 Burkina Faso                                  46.5 
+ 6 Burundi                                       30.1 
+ 7 Cameroon                                      20.4 
+ 8 Chad                                          62.7 
+ 9 Colombia                                      30.9 
+10 Democratic Republic of the Congo              24.7 
+# ℹ 16 more rows</code></pre>
+</div>
+</div>
+<ul>
+<li>by camp</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, location_name) <span class="sc">|&gt;</span> </span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">persons_per_shower =</span> <span class="fu">mean</span>(persons_per_shower, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(persons_per_shower <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by country and location_name.
+ℹ Output is grouped by country.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(country, location_name))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 187 × 3
+# Groups:   country [26]
+   country    location_name    persons_per_shower
+   &lt;chr&gt;      &lt;chr&gt;                         &lt;dbl&gt;
+ 1 Algeria    Auserd                         3.98
+ 2 Algeria    Boujdour                       3.91
+ 3 Algeria    Dakhla                         4   
+ 4 Algeria    Layounne                       5   
+ 5 Algeria    Smara                          5   
+ 6 Angola     Lovua settlement              12.7 
+ 7 Bangladesh Camp 17                      233   
+ 8 Bangladesh Camp 1E                       40   
+ 9 Bangladesh Camp 21                       32   
+10 Bangladesh Camp 26                       30   
+# ℹ 177 more rows</code></pre>
+</div>
+</div>
 <p>Population:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># chart with the mean refugee pop per country</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span> </span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">refugee_pop =</span> <span class="fu">mean</span>(refugee_pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(refugee_pop <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 31 × 2
+   country                          refugee_pop
+   &lt;chr&gt;                                  &lt;dbl&gt;
+ 1 Algeria                               17967.
+ 2 Angola                                 6883.
+ 3 Bangladesh                            24742.
+ 4 Brazil                                  544.
+ 5 Burkina Faso                           6755.
+ 6 Burundi                               10881.
+ 7 Cameroon                              17331.
+ 8 Chad                                  17603.
+ 9 Colombia                                438.
+10 Democratic Republic of the Congo      14326.
+# ℹ 21 more rows</code></pre>
+</div>
+</div>
 <ul>
 <li>20,000 people per camp</li>
 </ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>wash_data_core <span class="sc">|&gt;</span> </span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country, location_name) <span class="sc">|&gt;</span> </span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">refugee_pop =</span> <span class="fu">mean</span>(refugee_pop, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(refugee_pop <span class="sc">!=</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by country and location_name.
+ℹ Output is grouped by country.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(country, location_name))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 216 × 3
+# Groups:   country [31]
+   country    location_name    refugee_pop
+   &lt;chr&gt;      &lt;chr&gt;                  &lt;dbl&gt;
+ 1 Algeria    Auserd                18638 
+ 2 Algeria    Boujdour               9601 
+ 3 Algeria    Dakhla                10870 
+ 4 Algeria    Layounne              25503 
+ 5 Algeria    Smara                 25389 
+ 6 Angola     Lovua settlement       6883.
+ 7 Bangladesh Camp 17               17959 
+ 8 Bangladesh Camp 1E               40090 
+ 9 Bangladesh Camp 21               16438 
+10 Bangladesh Camp 26               41658 
+# ℹ 206 more rows</code></pre>
+</div>
+</div>
 </section>
 <section id="conclusions" class="level1">
 <h1>Conclusions</h1>

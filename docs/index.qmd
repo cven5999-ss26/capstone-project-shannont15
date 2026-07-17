@@ -197,6 +197,10 @@ wash_data_core_summary <- wash_data_core %>%
 
 ```{r}
 #| output: TRUE
+#| label: data_reported
+#| fig-cap: "Table 1: Summary that Averages the WASH Data Collected by Country"
+#| fig-alt: "A table that lists the average statistics on the population, number, reporting period, and percentage of post-emergency of refugee camps by country."
+#| fig-width: 12
 
 wash_data_core_summary |> 
   gt() |> 
@@ -245,6 +249,7 @@ Initial Visualization
 #| label: reports_per_year
 #| fig-cap: "Figure 1: Number of Refugee Camps Reported per Year"
 #| fig-alt: "Bar chart of the number of refugee camps reported on each year. This is cross-referenced with a line graph that shows the change in the number of countries reporting on refugee camps each year. The bar chart is further identified by color to indicate how many refugee camps are present per region."
+#| fig-width: 9
 
 ggplot() +
   geom_col(data = wash_data_timeline,
@@ -333,6 +338,8 @@ core_SSA <- left_join(core_SSA, reference, by = join_by("Indicators"))
 #| label: subset_data_SSA
 #| fig-cap: "Figure 2: Averages of Indicators by Country per Year"
 #| fig-alt: "Four line graphs that outline the average values of each indicator by country per year. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure."
+#| fig-width: 9
+#| fig-height: 9
 
 ggplot(data = core_SSA,
        mapping = aes(x = year, 
@@ -379,6 +386,9 @@ avg_summary <- core_SSA |>
             avg_toilets = mean(persons_per_toilet, na.rm = TRUE),
             avg_shower = mean(persons_per_shower, na.rm = TRUE)) 
 
+```
+
+```{r}
 results_fin <- tibble(
   Indicators = c("Liters per Person per Day",
                  "Persons per Tap", 
@@ -392,7 +402,86 @@ results_fin <- tibble(
 ```
 
 ```{r}
+core_SSA_location <- wash_data_core |> 
+  mutate(year = substr(report_date, "1", "4")) |> 
+  filter(region == "Sub-Saharan Africa", 
+         year >= 2018, 
+         liters_person_day < 75,
+         persons_per_shower < 200, 
+         persons_per_tap < 750,
+         persons_per_toilet < 100, 
+         refugee_pop < 150000) |> 
+  group_by(country, location_name) |> 
+  summarise(liters_person_day = mean(liters_person_day, na.rm = TRUE),
+            persons_per_tap = mean(persons_per_tap, na.rm = TRUE),
+            persons_per_toilet = mean(persons_per_toilet, na.rm = TRUE),
+            persons_per_shower = mean(persons_per_shower, na.rm = TRUE),
+            refugee_pop = mean(refugee_pop, na.rm = TRUE)) |>   
+  pivot_longer(
+    cols = c(liters_person_day,
+             persons_per_tap,
+             persons_per_toilet,
+             persons_per_shower),
+    names_to = "Indicators", 
+    values_to = "Values"
+  )
+
+core_SSA_location <- left_join(core_SSA_location, reference, by = join_by("Indicators"))
+```
+
+```{r}
 #| output: TRUE
+#| label: subset_data_SSA_location
+#| fig-cap: "Figure 3: Refugee Camp Population and Relation to WASH Standards"
+#| fig-alt: "Four line graphs that outline the average values of each indicator by location, further categorized by country by color. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure as well as an established trendline comparing population to resource management."
+#| fig-width: 9
+#| fig-height: 9
+
+ggplot(data = core_SSA_location,
+       mapping = aes(x = refugee_pop, 
+                     y = Values, 
+                     color = country)) +
+  geom_point(size=2) +
+  geom_smooth(
+    aes(group = 1, 
+        linetype = "Trend"),
+    method = "lm", 
+    se = FALSE,
+    linewidth = 0.5) +
+  geom_hline(
+    aes(yintercept = Baseline, 
+        linetype = "Baseline"),
+    linetype = "dashed",
+    linewidth = 1,
+    color = "red"    
+  ) +
+  facet_wrap(~Indicators,
+             scales = "free_y",
+             labeller = labeller(
+               Indicators = c(
+                 "liters_person_day" = "Liters per Person per Day",
+                 "persons_per_shower" = "Persons per Shower",
+                 "persons_per_tap" = "Persons per Tap",
+                 "persons_per_toilet" = "Persons per Toilet"
+               )
+             )) +
+  scale_color_viridis_d() +
+  labs(title = "Comparison of Population to WASH Resource Management",
+       subtitle = "Averages of Each Refugee Camp, further Identified by Country",
+       x = "Refugee Population", 
+       y = "Average Value per Indicator", 
+       color = "Country", 
+       linetype = "Data Trend"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+#| output: TRUE
+#| label: indicator_summary_table
+#| fig-cap: "Table 2: Average Percentage of Refugee Camps that do not meet WASH International Standards"
+#| fig-alt: "A table that lists the WASH indicators and a percentage that represents how many do not meet the international standards."
+#| fig-width: 9
 
 results_fin |> 
   gt() |> 

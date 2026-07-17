@@ -1,5 +1,5 @@
 ---
-title: "Data Exploration for WASH Status at Refugee Camps"
+title: "WASH Status in Refugee Camps Located in Sub-Saharan Africa"
 author:
   name: "Shannon Teri"
   orcid: "0009-0000-9889-1427"
@@ -18,33 +18,46 @@ execute:
   output: false
   warning: false
   message: false
+  
+# hid all code and figures at the beginning and selected specific segments in chunks
 ---
 
 # Introduction
 
-Looking at the conditions of refugee camps across 36 countries and 227 locations. The UNHCR Information Management System (IRIS) collected the data as an aggregate of conditions across specfic camps. I want to use this data to visualize these conditions and make cross-comparisons of similarities and differences based on location, time, and reason.
+Refugees face the unique and difficult challenge of trying to maintain their daily lives while displaced from their homes. It is critical that refugee camps are established in a way that meets people's basic needs, including food, water, shelter, and medical care. In this analysis, I focus specifically on the international WASH (Water, Sanitation, and Hygiene) standards that were established by UNHCR and examine whether refugee camps over the last decade have been able to support these fundamental needs.
 
 # Methods
 
 ## Reading the Data
+
+The organization openwashdata has created a repository that compiles data collected from the UNHCR Information Management System (IRIS). This data set provides insight into refugee camps, including population size, reporting frequency, access to clean water, and availability of WASH resources such as taps, showers, and toilets.
 
 ```{r}
 library(tidyverse)
 library(here)
 library(gt)
 library(countrycode)
+```
+
+```{r}
+#| echo: TRUE
 
 unhcr_wash_data <- read_csv(here::here("data/raw/refugee_camp_water_data.csv"))
 ```
 
 ## Initial Data Tidying
 
-Initial Looks
+The original data set was comprehensive and included information from reports from 227 refugee camp sites across 36 countries from 2013-2024.
 
 ```{r}
+#| echo: TRUE
+#| output: TRUE
+
 # view the first few rows
 head(unhcr_wash_data)
+```
 
+```{r}
 # check the number of rows/columns
 dim(unhcr_wash_data)
 
@@ -58,7 +71,7 @@ sum(country_check$n)
 # checks! = 6425
 ```
 
-Clean the Data
+The original data set contained many indicators, but some were repetitive and others could be more clearly categorized. This led me to reorganize the data set, combine similar parameters, and rename several variables for clarity.
 
 ```{r}
 # drop rows that don't have substantial data
@@ -114,9 +127,17 @@ wash_data_lim <- wash_data_lim |>
   select(-c(year, month))
 ```
 
-Cleaned Data Summaries
+```{r}
+#| echo: TRUE
+#| output: TRUE
+
+# view the first few rows
+head(wash_data_lim)
+```
 
 ```{r}
+# NOT USEFUL OVERALL, BUT WAS USEFUL IN FIGURING OUT HOW I WANTED TO ANALYZE THE DATA
+
 # summarize by year, but using wash_data_lim to get all countries/locations, yyyy-mm
 wash_data_timeline_lim_full <- wash_data_lim |> 
   group_by(report_date) |> 
@@ -149,9 +170,16 @@ wash_data_timeline_lim <- wash_data_lim |>
   )
 ```
 
-Core Data Tidy
+After the initial reorganization of the data, I decided to focus only on the core information relevant to my analysis. The indicators and case sites that were selected as "core information" were selected based on two criteria:
+
+1.  Did the majority of the case sites report data for that indicator?
+2.  Did the case site have substantial data across multiple indicators?
+
+Applying these factors allowed me to narrow the data set from more than 6,425 observations across 27 variables to 6,376 observations across 13 variables.
 
 ```{r}
+# CORE DATA TIDY --> BASIS FOR WHAT I USED FOR THE REMAINDER OF THE PROJECT
+
 # get rid of any that are over 3215 cells (half)
 # get rid of columns that only have 6 cells worth of data
 wash_data_core <- wash_data_lim |> 
@@ -175,11 +203,17 @@ wash_data_core <- wash_data_core |>
 # get rid of the not_NA column (not needed)
 wash_data_core <- wash_data_core |> 
   select(-c(not_NA, start_date, end_date))
-
-
 ```
 
-Core Summaries
+```{r}
+#| echo: TRUE
+#| output: TRUE
+
+# view the first few rows
+head(wash_data_core)
+```
+
+@tbl-data-reported provides additional insight to the overall status of refugee camps by country, specifically focusing on reporting activity and the conditions for which the camps were established.
 
 ```{r}
 # summarize by county
@@ -197,15 +231,15 @@ wash_data_core_summary <- wash_data_core %>%
 
 ```{r}
 #| output: TRUE
-#| label: data_reported
-#| fig-cap: "Table 1: Summary that Averages the WASH Data Collected by Country"
-#| fig-alt: "A table that lists the average statistics on the population, number, reporting period, and percentage of post-emergency of refugee camps by country."
-#| fig-width: 12
+#| label: tbl-data-reported
+#| tbl-cap: "Summary that Averages the WASH Data Collected by Country"
+#| tbl-alt: "A table that lists the average statistics on the population, number of reports, reporting period, and percentage of post-emergency camps by country."
+#| tbl-width: 12
 
 wash_data_core_summary |> 
   gt() |> 
   tab_header(
-    title = "Refugee Camps by Country",
+    title = "Refugee Camp Statistics by Country",
     subtitle = "Data Reported bewteen 2013 and 2024"
   ) |> 
   fmt_number(
@@ -222,7 +256,7 @@ wash_data_core_summary |>
     mean_pop = "Avg Refugee Camp Population",
     sum_cities = "Number of Refugee Camps",
     sum_reports = "Number of Reports",
-    sum_report_years = "Number of Years with Reports",
+    sum_report_years = "Number of Years Reported",
     post_emergency = "% Refugee Camps Post-Emergency"
   )
 ```
@@ -242,13 +276,23 @@ wash_data_timeline_yr <- wash_data_core |>
   summarise(country_count = n_distinct(country))
 ```
 
-Initial Visualization
+The refined data set was then save as a separate CSV file for future analysis.
+
+```{r}
+#| echo: TRUE
+write_csv(wash_data_core,
+          here::here("data/processed/refugee_camp_water_data_tidied.csv"))
+```
+
+# Results
+
+Refugee camps are not isolated to any one region of the world. While some countries and regions that have a greater concentration than others, there is a consistent need to track, manage, and improve refugee camp conditions globally. @fig-reports-per-year shows the number of refugee camps being reported each year and compares those to the number of countries represented.
 
 ```{r}
 #| output: TRUE
-#| label: reports_per_year
-#| fig-cap: "Figure 1: Number of Refugee Camps Reported per Year"
-#| fig-alt: "Bar chart of the number of refugee camps reported on each year. This is cross-referenced with a line graph that shows the change in the number of countries reporting on refugee camps each year. The bar chart is further identified by color to indicate how many refugee camps are present per region."
+#| label: fig-reports-per-year
+#| fig-cap: "Number of Refugee Camps Reported per Year"
+#| fig-alt: "Bar chart of the number of refugee camps reported each year. This is cross-referenced with a line graph that shows the number of countries these camps are established in. The bar chart is further identified by color to indicate how many refugee camps are present per region."
 #| fig-width: 9
 
 ggplot() +
@@ -270,27 +314,18 @@ ggplot() +
     name = "Number of Refugee Camps", 
     sec.axis = sec_axis(
       ~ .,
-        name = "Number of Countries Reporting"
+        name = "Number of Countries Represented"
       )
     ) +
   labs(title = "Number of Refugee Camps Reported per Year",
-       subtitle = "Compared to Number of Countries Reporting per Year",
+       subtitle = "Includes the Number of Countries Represented",
        x = "Year", 
        y = "Number of Refugee Camps",
        fill = "Regions",
        linetype = "Countries")
 ```
 
-Write CSV
-
-```{r}
-write_csv(wash_data_lim,
-          here::here("data/processed/refugee_camp_water_data_tidied.csv"))
-```
-
-# Results
-
-According the UNHCR:
+Because Sub-Saharan Africa contained the largest amount of available data, I further narrowed the analysis to countries within this region. Along with this, @tbl-baselines provides the international standards used to evaluate WASH infrastructure in refugee camps.
 
 ```{r}
 # FOCUS SPECIFICALLY ON SUB-SAHARHAN AFRICA SINCE IT HAS THE MOST DATA
@@ -330,13 +365,38 @@ reference <- tibble(
 )
 
 core_SSA <- left_join(core_SSA, reference, by = join_by("Indicators"))
-
 ```
 
 ```{r}
 #| output: TRUE
-#| label: subset_data_SSA
-#| fig-cap: "Figure 2: Averages of Indicators by Country per Year"
+#| label: tbl-baselines
+#| tbl-cap: "International Standards for WASH Indicators"
+#| tbl-alt: "A table that lists the international WASH standards being analyzed and their threshold."
+#| tbl-width: 12
+
+reference |> 
+  gt() |> 
+  tab_header(
+    title = "International WASH Standards",
+    subtitle = "Threshold"
+  ) |> 
+  fmt_number(
+    columns = Baseline,
+    decimals = 0) |> 
+  cols_label(
+    Indicators = "Indicator",
+    Baseline = "Baseline",
+  )
+```
+
+Focusing on these four indicators within Sub-Saharan Africa made it possible to evaluate the average conditions and availability of WASH resources at refugee camps over time, as shown in @fig-subset-data-SSA.
+
+The red dashed line in each figure represents the UNHCR standard for that indicator. While many countries average near the recommended threshold, there are also numerous cases where the WASH standards are not being met.
+
+```{r}
+#| output: TRUE
+#| label: fig-subset-data-SSA
+#| fig-cap: "Averages of Indicators by Country per Year"
 #| fig-alt: "Four line graphs that outline the average values of each indicator by country per year. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure."
 #| fig-width: 9
 #| fig-height: 9
@@ -401,6 +461,10 @@ results_fin <- tibble(
 )
 ```
 
+Taking this analysis a step further, @fig-subset-data-SSA-location illustrates the relationship between each indicator and the population size of individual refugee camps.
+
+Again, the red dashed line represents the recommended UNHCR standard. These figures suggest that as refugee camp populations increase, access to WASH resources become more limited. It should also be noted that refugee camps are generally intended to accommodate about 20,000 people. Although this standard is not explicitly shown in the figures, it can be seen that many camps have exceeded that capacity.
+
 ```{r}
 core_SSA_location <- wash_data_core |> 
   mutate(year = substr(report_date, "1", "4")) |> 
@@ -431,9 +495,9 @@ core_SSA_location <- left_join(core_SSA_location, reference, by = join_by("Indic
 
 ```{r}
 #| output: TRUE
-#| label: subset_data_SSA_location
-#| fig-cap: "Figure 3: Refugee Camp Population and Relation to WASH Standards"
-#| fig-alt: "Four line graphs that outline the average values of each indicator by location, further categorized by country by color. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure as well as an established trendline comparing population to resource management."
+#| label: fig-subset-data-SSA-location
+#| fig-cap: "Refugee Camp Population and Relation to WASH Indicators"
+#| fig-alt: "Four line graphs that outline the average values of each indicator by location, further categorized by country by color. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure. There is also a trendline that tracks the relationship between population and resource management."
 #| fig-width: 9
 #| fig-height: 9
 
@@ -467,7 +531,7 @@ ggplot(data = core_SSA_location,
              )) +
   scale_color_viridis_d() +
   labs(title = "Comparison of Population to WASH Resource Management",
-       subtitle = "Averages of Each Refugee Camp, further Identified by Country",
+       subtitle = "Averages from Individual Refugee Camps",
        x = "Refugee Population", 
        y = "Average Value per Indicator", 
        color = "Country", 
@@ -476,18 +540,34 @@ ggplot(data = core_SSA_location,
   theme_minimal()
 ```
 
+Unfortunately, these results make it clear that many refugees have limited access to adequate WASH infrastructure within these camps.
+
+# Conclusions
+
+## Summary of Findings
+
+The analysis on this data set would indicate that:
+
+- Refugee camps in Sub-Saharan Africa tend to fall below the UNHCR standards
+
+- Almost 58% of camps provide less than 20 liters of water per person per day
+
+- 63% of taps in refugee camps service more than 100 people
+
+- Generally, an increase in population leads to a decrease in water resources per person
+
 ```{r}
 #| output: TRUE
-#| label: indicator_summary_table
-#| fig-cap: "Table 2: Average Percentage of Refugee Camps that do not meet WASH International Standards"
-#| fig-alt: "A table that lists the WASH indicators and a percentage that represents how many do not meet the international standards."
-#| fig-width: 9
+#| label: tbl-indicator-summary
+#| tbl-cap: "Average Percentage of Refugee Camps that do not meet WASH International Standards"
+#| tbl-alt: "A table that lists the WASH indicators and a percentage that represents how many do not meet the international standards."
+#| tbl-width: 9
 
 results_fin |> 
   gt() |> 
   tab_header(
-    title = "Percentage of Refugee Camps above International Standard",
-    subtitle = "Determined by Indicator"
+    title = "Percentage of Refugee Camps that do not meet the International Standard",
+    subtitle = "Percentage by Indicator"
   ) |> 
   fmt_number(
     columns = Results,
@@ -498,10 +578,14 @@ results_fin |>
   )
 ```
 
-# Conclusions
+There are many reasons why WASH infrastructure may fall short in refugee camps. Overcrowding, resource contamination, geographic constraints, limited resources, secutiry concerns, and insufficient funding are just to name a few examples.
 
-## Summary of Findings
+The purpose of this analysis is not to place blame on any particular country, region, or organization for failing to meet the UNHCR standards. Rather, it is intended to highlight that the current needs of many refugees are not being fully met. @tbl-indicator-summary shows that while access to toilets and showers is often more available, significant challenges remain regarding daily water availability and access to water collection points.
 
 ## Questions and Next Steps
 
-Right now I'm working in generalizations by region, I would want to do more of a deep dive into the specifics per Refugee Camp. It would also be interesting to see the their locations, how they coorelate, and get more information about why they were formed.
+I believe that there is a lot of room to continue working with this data to gain more comprehensive insights to the real situations of refugees. While I was able to gain a fundamental understanding of the situation within Sub-Saharan Africa, I would love to do a cross-analysis of this with other regions in the world. From there, then further work can be done to see what refugee camps and regions are performing better than others in meeting these requirements and what actions could be taken to implement the same in under-performing areas.
+
+I believe there is significant opportunity to continue working with this data set to gain a more comprehensive understanding of the realities faced by refugees. While this analysis focused on Sub-Saharan Africa, a valuable next step would be to compare these finding with those from other regions around the word. Then, additional work could be done to identify which camps are performing better at meeting the WASH standards and what practices could potentially be applied to areas that are struggling.
+
+That being said, the conditions and quality of life within refugee camps cannot be fully understood through quantitative WASH data. It would be valuable to examine additional indicators such as access to food, education, community engagement, shelter quality, and length of stay in a refugee camp, alongside the WASH data, to develop a more complete picture of the conditions and well being of refugees.

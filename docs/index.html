@@ -9,7 +9,7 @@
 <meta name="author" content="Shannon Teri">
 <meta name="dcterms.date" content="2026-07-01">
 
-<title>Data Exploration for WASH Status at Refugee Camps</title>
+<title>WASH Status in Refugee Camps Located in Sub-Saharan Africa</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,6 +21,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -49,7 +84,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data Exploration for WASH Status at Refugee Camps</h1>
+<h1 class="title">WASH Status in Refugee Camps Located in Sub-Saharan Africa</h1>
 </div>
 
 
@@ -87,39 +122,115 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>Looking at the conditions of refugee camps across 36 countries and 227 locations. The UNHCR Information Management System (IRIS) collected the data as an aggregate of conditions across specfic camps. I want to use this data to visualize these conditions and make cross-comparisons of similarities and differences based on location, time, and reason.</p>
+<p>Refugees face the unique and difficult challenge of trying to maintain their daily lives while displaced from their homes. It is critical that refugee camps are established in a way that meets people’s basic needs, including food, water, shelter, and medical care. In this analysis, I focus specifically on the international WASH (Water, Sanitation, and Hygiene) standards that were established by UNHCR and examine whether refugee camps over the last decade have been able to support these fundamental needs.</p>
 </section>
 <section id="methods" class="level1">
 <h1>Methods</h1>
 <section id="reading-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="reading-the-data">Reading the Data</h2>
+<p>The organization openwashdata has created a repository that compiles data collected from the UNHCR Information Management System (IRIS). This data set provides insight into refugee camps, including population size, reporting frequency, access to clean water, and availability of WASH resources such as taps, showers, and toilets.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>unhcr_wash_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/raw/refugee_camp_water_data.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
 <section id="initial-data-tidying" class="level2">
 <h2 class="anchored" data-anchor-id="initial-data-tidying">Initial Data Tidying</h2>
-<p>Initial Looks</p>
-<p>Clean the Data</p>
-<p>Cleaned Data Summaries</p>
-<p>Core Data Tidy</p>
-<p>Core Summaries</p>
+<p>The original data set was comprehensive and included information from reports from 227 refugee camp sites across 36 countries from 2013-2024.</p>
 <div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view the first few rows</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(unhcr_wash_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 27
+  form_id start_date end_date   location_id location_name country post_emergency
+    &lt;dbl&gt; &lt;date&gt;     &lt;date&gt;           &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;   &lt;chr&gt;         
+1  5.44e7 2024-01-01 2024-12-31         518 Dagahaley     Kenya   &lt;NA&gt;          
+2  5.44e7 2024-01-01 2024-12-31         519 Hagadera      Kenya   &lt;NA&gt;          
+3  5.44e7 2024-01-01 2024-12-31         520 Ifo           Kenya   &lt;NA&gt;          
+4  5.44e7 2024-01-01 2024-12-31        5105 Ifo 2         Kenya   &lt;NA&gt;          
+5  5.44e7 2024-12-02 2024-12-29         541 Buramino      Ethiop… Post-emergency
+6  5.44e7 2024-09-02 2024-09-29         209 Lovua settle… Angola  Post-emergency
+# ℹ 20 more variables: persons_per_handpump &lt;dbl&gt;, persons_per_tap &lt;dbl&gt;,
+#   liters_per_person_per_day &lt;dbl&gt;, non_chlorinated_0_cfu &lt;dbl&gt;,
+#   chlorinated_safe_water_quality &lt;dbl&gt;, households_with_toilet &lt;dbl&gt;,
+#   persons_per_toilet &lt;dbl&gt;, persons_per_shower &lt;dbl&gt;,
+#   persons_per_hygiene_promoter &lt;dbl&gt;, refugee_pop &lt;dbl&gt;,
+#   reporting_monthly &lt;dbl&gt;, liters_per_person_household &lt;dbl&gt;,
+#   potable_water_storage_10l &lt;dbl&gt;, protected_water_sources &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>The original data set contained many indicators, but some were repetitive and others could be more clearly categorized. This led me to reorganize the data set, combine similar parameters, and rename several variables for clarity.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view the first few rows</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wash_data_lim)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 24
+  report_date start_date end_date   region  country location_name post_emergency
+  &lt;chr&gt;       &lt;date&gt;     &lt;date&gt;     &lt;fct&gt;   &lt;chr&gt;   &lt;chr&gt;         &lt;chr&gt;         
+1 2024-07     2024-01-01 2024-12-31 Sub-Sa… Kenya   Dagahaley     &lt;NA&gt;          
+2 2024-07     2024-01-01 2024-12-31 Sub-Sa… Kenya   Hagadera      &lt;NA&gt;          
+3 2024-07     2024-01-01 2024-12-31 Sub-Sa… Kenya   Ifo           &lt;NA&gt;          
+4 2024-07     2024-01-01 2024-12-31 Sub-Sa… Kenya   Ifo 2         &lt;NA&gt;          
+5 2024-12     2024-12-02 2024-12-29 Sub-Sa… Ethiop… Buramino      Post-emergency
+6 2024-09     2024-09-02 2024-09-29 Sub-Sa… Angola  Lovua settle… Post-emergency
+# ℹ 17 more variables: refugee_pop &lt;dbl&gt;, persons_per_handpump &lt;dbl&gt;,
+#   persons_per_tap &lt;dbl&gt;, persons_per_shower &lt;dbl&gt;,
+#   persons_per_hygiene_promoter &lt;dbl&gt;, persons_per_toilet &lt;dbl&gt;,
+#   defecate_in_toilet_HH_perc &lt;dbl&gt;, toilets_per_HH_percentage &lt;dbl&gt;,
+#   solid_waste_disposal_HH_perc &lt;dbl&gt;, menstrual_hygiene_satisfaction &lt;dbl&gt;,
+#   access_to_soap_HH_perc &lt;dbl&gt;, liters_person_day &lt;dbl&gt;,
+#   liters_per_HH_per_day &lt;dbl&gt;, non_chlorinated_0_cfu &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>After the initial reorganization of the data, I decided to focus only on the core information relevant to my analysis. The indicators and case sites that were selected as “core information” were selected based on two criteria:</p>
+<ol type="1">
+<li>Did the majority of the case sites report data for that indicator?</li>
+<li>Did the case site have substantial data across multiple indicators?</li>
+</ol>
+<p>Applying these factors allowed me to narrow the data set from more than 6,425 observations across 27 variables to 6,376 observations across 13 variables.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view the first few rows</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wash_data_core)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 13
+  report_date region            country location_name post_emergency refugee_pop
+  &lt;chr&gt;       &lt;fct&gt;             &lt;chr&gt;   &lt;chr&gt;         &lt;chr&gt;                &lt;dbl&gt;
+1 2024-07     Sub-Saharan Afri… Kenya   Dagahaley     &lt;NA&gt;                    NA
+2 2024-07     Sub-Saharan Afri… Kenya   Hagadera      &lt;NA&gt;                    NA
+3 2024-07     Sub-Saharan Afri… Kenya   Ifo           &lt;NA&gt;                    NA
+4 2024-07     Sub-Saharan Afri… Kenya   Ifo 2         &lt;NA&gt;                    NA
+5 2024-12     Sub-Saharan Afri… Ethiop… Buramino      Post-emergency       49000
+6 2024-09     Sub-Saharan Afri… Angola  Lovua settle… Post-emergency        6262
+# ℹ 7 more variables: persons_per_tap &lt;dbl&gt;, liters_person_day &lt;dbl&gt;,
+#   safe_water_perc &lt;dbl&gt;, persons_per_shower &lt;dbl&gt;, persons_per_toilet &lt;dbl&gt;,
+#   toilets_per_HH_percentage &lt;dbl&gt;, persons_per_hygiene_promoter &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p><a href="#tbl-data-reported" class="quarto-xref">Table&nbsp;1</a> provides additional insight to the overall status of refugee camps by country, specifically focusing on reporting activity and the conditions for which the camps were established.</p>
+<div class="cell" data-tbl-alt="A table that lists the average statistics on the population, number of reports, reporting period, and percentage of post-emergency camps by country." data-tbl-width="12">
+<div id="tbl-data-reported" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-width="12" data-tbl-alt="A table that lists the average statistics on the population, number of reports, reporting period, and percentage of post-emergency camps by country.">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-data-reported-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Summary that Averages the WASH Data Collected by Country
+</figcaption>
+<div aria-describedby="tbl-data-reported-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="grilossplu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#grilossplu table {
+<div id="mbgaknhopb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mbgaknhopb table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#grilossplu thead, #grilossplu tbody, #grilossplu tfoot, #grilossplu tr, #grilossplu td, #grilossplu th {
+#mbgaknhopb thead, #mbgaknhopb tbody, #mbgaknhopb tfoot, #mbgaknhopb tr, #mbgaknhopb td, #mbgaknhopb th {
   border-style: none;
 }
 
-#grilossplu p {
+#mbgaknhopb p {
   margin: 0;
   padding: 0;
 }
 
-#grilossplu .gt_table {
+#mbgaknhopb .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -145,12 +256,12 @@ ul.task-list li input[type="checkbox"] {
   border-left-color: #D3D3D3;
 }
 
-#grilossplu .gt_caption {
+#mbgaknhopb .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#grilossplu .gt_title {
+#mbgaknhopb .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -162,7 +273,7 @@ ul.task-list li input[type="checkbox"] {
   border-bottom-width: 0;
 }
 
-#grilossplu .gt_subtitle {
+#mbgaknhopb .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -174,7 +285,7 @@ ul.task-list li input[type="checkbox"] {
   border-top-width: 0;
 }
 
-#grilossplu .gt_heading {
+#mbgaknhopb .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -186,13 +297,13 @@ ul.task-list li input[type="checkbox"] {
   border-right-color: #D3D3D3;
 }
 
-#grilossplu .gt_bottom_border {
+#mbgaknhopb .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#grilossplu .gt_col_headings {
+#mbgaknhopb .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -207,7 +318,7 @@ ul.task-list li input[type="checkbox"] {
   border-right-color: #D3D3D3;
 }
 
-#grilossplu .gt_col_heading {
+#mbgaknhopb .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -227,7 +338,7 @@ ul.task-list li input[type="checkbox"] {
   overflow-x: hidden;
 }
 
-#grilossplu .gt_column_spanner_outer {
+#mbgaknhopb .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -239,15 +350,15 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 4px;
 }
 
-#grilossplu .gt_column_spanner_outer:first-child {
+#mbgaknhopb .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#grilossplu .gt_column_spanner_outer:last-child {
+#mbgaknhopb .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#grilossplu .gt_column_spanner {
+#mbgaknhopb .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -259,11 +370,11 @@ ul.task-list li input[type="checkbox"] {
   width: 100%;
 }
 
-#grilossplu .gt_spanner_row {
+#mbgaknhopb .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#grilossplu .gt_group_heading {
+#mbgaknhopb .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -289,7 +400,7 @@ ul.task-list li input[type="checkbox"] {
   text-align: left;
 }
 
-#grilossplu .gt_empty_group_heading {
+#mbgaknhopb .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -304,15 +415,15 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 
-#grilossplu .gt_from_md > :first-child {
+#mbgaknhopb .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#grilossplu .gt_from_md > :last-child {
+#mbgaknhopb .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#grilossplu .gt_row {
+#mbgaknhopb .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -331,7 +442,7 @@ ul.task-list li input[type="checkbox"] {
   overflow-x: hidden;
 }
 
-#grilossplu .gt_stub {
+#mbgaknhopb .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -344,7 +455,7 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#grilossplu .gt_stub_row_group {
+#mbgaknhopb .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -358,15 +469,15 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: top;
 }
 
-#grilossplu .gt_row_group_first td {
+#mbgaknhopb .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#grilossplu .gt_row_group_first th {
+#mbgaknhopb .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#grilossplu .gt_summary_row {
+#mbgaknhopb .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -376,16 +487,16 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#grilossplu .gt_first_summary_row {
+#mbgaknhopb .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#grilossplu .gt_first_summary_row.thick {
+#mbgaknhopb .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#grilossplu .gt_last_summary_row {
+#mbgaknhopb .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -395,7 +506,7 @@ ul.task-list li input[type="checkbox"] {
   border-bottom-color: #D3D3D3;
 }
 
-#grilossplu .gt_grand_summary_row {
+#mbgaknhopb .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -405,7 +516,7 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#grilossplu .gt_first_grand_summary_row {
+#mbgaknhopb .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -415,7 +526,7 @@ ul.task-list li input[type="checkbox"] {
   border-top-color: #D3D3D3;
 }
 
-#grilossplu .gt_last_grand_summary_row_top {
+#mbgaknhopb .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -425,11 +536,11 @@ ul.task-list li input[type="checkbox"] {
   border-bottom-color: #D3D3D3;
 }
 
-#grilossplu .gt_striped {
+#mbgaknhopb .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#grilossplu .gt_table_body {
+#mbgaknhopb .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -438,7 +549,7 @@ ul.task-list li input[type="checkbox"] {
   border-bottom-color: #D3D3D3;
 }
 
-#grilossplu .gt_footnotes {
+#mbgaknhopb .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -452,7 +563,7 @@ ul.task-list li input[type="checkbox"] {
   border-right-color: #D3D3D3;
 }
 
-#grilossplu .gt_footnote {
+#mbgaknhopb .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -461,7 +572,7 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#grilossplu .gt_sourcenotes {
+#mbgaknhopb .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -475,7 +586,7 @@ ul.task-list li input[type="checkbox"] {
   border-right-color: #D3D3D3;
 }
 
-#grilossplu .gt_sourcenote {
+#mbgaknhopb .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -483,80 +594,80 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#grilossplu .gt_left {
+#mbgaknhopb .gt_left {
   text-align: left;
 }
 
-#grilossplu .gt_center {
+#mbgaknhopb .gt_center {
   text-align: center;
 }
 
-#grilossplu .gt_right {
+#mbgaknhopb .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#grilossplu .gt_font_normal {
+#mbgaknhopb .gt_font_normal {
   font-weight: normal;
 }
 
-#grilossplu .gt_font_bold {
+#mbgaknhopb .gt_font_bold {
   font-weight: bold;
 }
 
-#grilossplu .gt_font_italic {
+#mbgaknhopb .gt_font_italic {
   font-style: italic;
 }
 
-#grilossplu .gt_super {
+#mbgaknhopb .gt_super {
   font-size: 65%;
 }
 
-#grilossplu .gt_footnote_marks {
+#mbgaknhopb .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#grilossplu .gt_asterisk {
+#mbgaknhopb .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#grilossplu .gt_indent_1 {
+#mbgaknhopb .gt_indent_1 {
   text-indent: 5px;
 }
 
-#grilossplu .gt_indent_2 {
+#mbgaknhopb .gt_indent_2 {
   text-indent: 10px;
 }
 
-#grilossplu .gt_indent_3 {
+#mbgaknhopb .gt_indent_3 {
   text-indent: 15px;
 }
 
-#grilossplu .gt_indent_4 {
+#mbgaknhopb .gt_indent_4 {
   text-indent: 20px;
 }
 
-#grilossplu .gt_indent_5 {
+#mbgaknhopb .gt_indent_5 {
   text-indent: 25px;
 }
 
-#grilossplu .katex-display {
+#mbgaknhopb .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#grilossplu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#mbgaknhopb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 
-<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading header">
-<td colspan="6" class="gt_heading gt_title gt_font_normal">Refugee Camps by Country</td>
+<td colspan="6" class="gt_heading gt_title gt_font_normal">Refugee Camp Statistics by Country</td>
 </tr>
 <tr class="gt_heading even">
 <td colspan="6" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Data Reported bewteen 2013 and 2024</td>
@@ -566,7 +677,7 @@ ul.task-list li input[type="checkbox"] {
 <th id="mean_pop" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Avg Refugee Camp Population</th>
 <th id="sum_cities" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Number of Refugee Camps</th>
 <th id="sum_reports" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Number of Reports</th>
-<th id="sum_report_years" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Number of Years with Reports</th>
+<th id="sum_report_years" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Number of Years Reported</th>
 <th id="post_emergency" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">% Refugee Camps Post-Emergency</th>
 </tr>
 </thead>
@@ -831,65 +942,61 @@ ul.task-list li input[type="checkbox"] {
 </table>
 
 </div>
-<p>Table 1: Summary that Averages the WASH Data Collected by Country</p>
 </div>
 </div>
-<p>Initial Visualization</p>
-<div class="cell">
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="index_files/figure-html/reports_per_year-1.png" class="img-fluid figure-img" alt="Bar chart of the number of refugee camps reported on each year. This is cross-referenced with a line graph that shows the change in the number of countries reporting on refugee camps each year. The bar chart is further identified by color to indicate how many refugee camps are present per region." width="864"></p>
-<figcaption>Figure 1: Number of Refugee Camps Reported per Year</figcaption>
 </figure>
 </div>
 </div>
+<p>The refined data set was then save as a separate CSV file for future analysis.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(wash_data_core,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>          here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/processed/refugee_camp_water_data_tidied.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Write CSV</p>
 </section>
 </section>
 <section id="results" class="level1">
 <h1>Results</h1>
-<p>According the UNHCR:</p>
+<p>Refugee camps are not isolated to any one region of the world. While some countries and regions that have a greater concentration than others, there is a consistent need to track, manage, and improve refugee camp conditions globally. <a href="#fig-reports-per-year" class="quarto-xref">Figure&nbsp;1</a> shows the number of refugee camps being reported each year and compares those to the number of countries represented.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="index_files/figure-html/subset_data_SSA-1.png" class="img-fluid figure-img" alt="Four line graphs that outline the average values of each indicator by country per year. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure." width="864"></p>
-<figcaption>Figure 2: Averages of Indicators by Country per Year</figcaption>
+<div id="fig-reports-per-year" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart of the number of refugee camps reported each year. This is cross-referenced with a line graph that shows the number of countries these camps are established in. The bar chart is further identified by color to indicate how many refugee camps are present per region.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-reports-per-year-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-reports-per-year-1.png" class="img-fluid figure-img" alt="Bar chart of the number of refugee camps reported each year. This is cross-referenced with a line graph that shows the number of countries these camps are established in. The bar chart is further identified by color to indicate how many refugee camps are present per region." width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reports-per-year-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Number of Refugee Camps Reported per Year
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div class="cell">
+<p>Because Sub-Saharan Africa contained the largest amount of available data, I further narrowed the analysis to countries within this region. Along with this, <a href="#tbl-baselines" class="quarto-xref">Table&nbsp;2</a> provides the international standards used to evaluate WASH infrastructure in refugee camps.</p>
+<div class="cell" data-tbl-alt="A table that lists the international WASH standards being analyzed and their threshold." data-tbl-width="12">
+<div id="tbl-baselines" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-width="12" data-tbl-alt="A table that lists the international WASH standards being analyzed and their threshold.">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-baselines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: International Standards for WASH Indicators
+</figcaption>
+<div aria-describedby="tbl-baselines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="index_files/figure-html/subset_data_SSA_location-1.png" class="img-fluid figure-img" alt="Four line graphs that outline the average values of each indicator by location, further categorized by country by color. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure as well as an established trendline comparing population to resource management." width="864"></p>
-<figcaption>Figure 3: Refugee Camp Population and Relation to WASH Standards</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div id="zdprlnxlhp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zdprlnxlhp table {
+<div id="pvsydfjhus" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#pvsydfjhus table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zdprlnxlhp thead, #zdprlnxlhp tbody, #zdprlnxlhp tfoot, #zdprlnxlhp tr, #zdprlnxlhp td, #zdprlnxlhp th {
+#pvsydfjhus thead, #pvsydfjhus tbody, #pvsydfjhus tfoot, #pvsydfjhus tr, #pvsydfjhus td, #pvsydfjhus th {
   border-style: none;
 }
 
-#zdprlnxlhp p {
+#pvsydfjhus p {
   margin: 0;
   padding: 0;
 }
 
-#zdprlnxlhp .gt_table {
+#pvsydfjhus .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -915,12 +1022,12 @@ ul.task-list li input[type="checkbox"] {
   border-left-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_caption {
+#pvsydfjhus .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zdprlnxlhp .gt_title {
+#pvsydfjhus .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -932,7 +1039,7 @@ ul.task-list li input[type="checkbox"] {
   border-bottom-width: 0;
 }
 
-#zdprlnxlhp .gt_subtitle {
+#pvsydfjhus .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -944,7 +1051,7 @@ ul.task-list li input[type="checkbox"] {
   border-top-width: 0;
 }
 
-#zdprlnxlhp .gt_heading {
+#pvsydfjhus .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -956,13 +1063,13 @@ ul.task-list li input[type="checkbox"] {
   border-right-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_bottom_border {
+#pvsydfjhus .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_col_headings {
+#pvsydfjhus .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -977,7 +1084,7 @@ ul.task-list li input[type="checkbox"] {
   border-right-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_col_heading {
+#pvsydfjhus .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -997,7 +1104,7 @@ ul.task-list li input[type="checkbox"] {
   overflow-x: hidden;
 }
 
-#zdprlnxlhp .gt_column_spanner_outer {
+#pvsydfjhus .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1009,15 +1116,15 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 4px;
 }
 
-#zdprlnxlhp .gt_column_spanner_outer:first-child {
+#pvsydfjhus .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zdprlnxlhp .gt_column_spanner_outer:last-child {
+#pvsydfjhus .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zdprlnxlhp .gt_column_spanner {
+#pvsydfjhus .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1029,11 +1136,11 @@ ul.task-list li input[type="checkbox"] {
   width: 100%;
 }
 
-#zdprlnxlhp .gt_spanner_row {
+#pvsydfjhus .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zdprlnxlhp .gt_group_heading {
+#pvsydfjhus .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1059,7 +1166,7 @@ ul.task-list li input[type="checkbox"] {
   text-align: left;
 }
 
-#zdprlnxlhp .gt_empty_group_heading {
+#pvsydfjhus .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1074,15 +1181,15 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 
-#zdprlnxlhp .gt_from_md > :first-child {
+#pvsydfjhus .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zdprlnxlhp .gt_from_md > :last-child {
+#pvsydfjhus .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zdprlnxlhp .gt_row {
+#pvsydfjhus .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1101,7 +1208,7 @@ ul.task-list li input[type="checkbox"] {
   overflow-x: hidden;
 }
 
-#zdprlnxlhp .gt_stub {
+#pvsydfjhus .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1114,7 +1221,7 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#zdprlnxlhp .gt_stub_row_group {
+#pvsydfjhus .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1128,15 +1235,15 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: top;
 }
 
-#zdprlnxlhp .gt_row_group_first td {
+#pvsydfjhus .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zdprlnxlhp .gt_row_group_first th {
+#pvsydfjhus .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zdprlnxlhp .gt_summary_row {
+#pvsydfjhus .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1146,16 +1253,16 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#zdprlnxlhp .gt_first_summary_row {
+#pvsydfjhus .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_first_summary_row.thick {
+#pvsydfjhus .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zdprlnxlhp .gt_last_summary_row {
+#pvsydfjhus .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1165,7 +1272,7 @@ ul.task-list li input[type="checkbox"] {
   border-bottom-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_grand_summary_row {
+#pvsydfjhus .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1175,7 +1282,7 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#zdprlnxlhp .gt_first_grand_summary_row {
+#pvsydfjhus .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1185,7 +1292,7 @@ ul.task-list li input[type="checkbox"] {
   border-top-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_last_grand_summary_row_top {
+#pvsydfjhus .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1195,11 +1302,11 @@ ul.task-list li input[type="checkbox"] {
   border-bottom-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_striped {
+#pvsydfjhus .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zdprlnxlhp .gt_table_body {
+#pvsydfjhus .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1208,7 +1315,7 @@ ul.task-list li input[type="checkbox"] {
   border-bottom-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_footnotes {
+#pvsydfjhus .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1222,7 +1329,7 @@ ul.task-list li input[type="checkbox"] {
   border-right-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_footnote {
+#pvsydfjhus .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1231,7 +1338,7 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#zdprlnxlhp .gt_sourcenotes {
+#pvsydfjhus .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1245,7 +1352,7 @@ ul.task-list li input[type="checkbox"] {
   border-right-color: #D3D3D3;
 }
 
-#zdprlnxlhp .gt_sourcenote {
+#pvsydfjhus .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1253,83 +1360,625 @@ ul.task-list li input[type="checkbox"] {
   padding-right: 5px;
 }
 
-#zdprlnxlhp .gt_left {
+#pvsydfjhus .gt_left {
   text-align: left;
 }
 
-#zdprlnxlhp .gt_center {
+#pvsydfjhus .gt_center {
   text-align: center;
 }
 
-#zdprlnxlhp .gt_right {
+#pvsydfjhus .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zdprlnxlhp .gt_font_normal {
+#pvsydfjhus .gt_font_normal {
   font-weight: normal;
 }
 
-#zdprlnxlhp .gt_font_bold {
+#pvsydfjhus .gt_font_bold {
   font-weight: bold;
 }
 
-#zdprlnxlhp .gt_font_italic {
+#pvsydfjhus .gt_font_italic {
   font-style: italic;
 }
 
-#zdprlnxlhp .gt_super {
+#pvsydfjhus .gt_super {
   font-size: 65%;
 }
 
-#zdprlnxlhp .gt_footnote_marks {
+#pvsydfjhus .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zdprlnxlhp .gt_asterisk {
+#pvsydfjhus .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zdprlnxlhp .gt_indent_1 {
+#pvsydfjhus .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zdprlnxlhp .gt_indent_2 {
+#pvsydfjhus .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zdprlnxlhp .gt_indent_3 {
+#pvsydfjhus .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zdprlnxlhp .gt_indent_4 {
+#pvsydfjhus .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zdprlnxlhp .gt_indent_5 {
+#pvsydfjhus .gt_indent_5 {
   text-indent: 25px;
 }
 
-#zdprlnxlhp .katex-display {
+#pvsydfjhus .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#zdprlnxlhp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#pvsydfjhus div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 
-<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead>
 <tr class="gt_heading header">
-<td colspan="2" class="gt_heading gt_title gt_font_normal">Percentage of Refugee Camps above International Standard</td>
+<td colspan="2" class="gt_heading gt_title gt_font_normal">International WASH Standards</td>
 </tr>
 <tr class="gt_heading even">
-<td colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Determined by Indicator</td>
+<td colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Threshold</td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="Indicators" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Indicator</th>
+<th id="Baseline" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Baseline</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Indicators">liters_person_day</td>
+<td class="gt_row gt_right" headers="Baseline">20</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Indicators">persons_per_tap</td>
+<td class="gt_row gt_right" headers="Baseline">100</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Indicators">persons_per_toilet</td>
+<td class="gt_row gt_right" headers="Baseline">20</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Indicators">persons_per_shower</td>
+<td class="gt_row gt_right" headers="Baseline">50</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Focusing on these four indicators within Sub-Saharan Africa made it possible to evaluate the average conditions and availability of WASH resources at refugee camps over time, as shown in <a href="#fig-subset-data-SSA" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<p>The red dashed line in each figure represents the UNHCR standard for that indicator. While many countries average near the recommended threshold, there are also numerous cases where the WASH standards are not being met.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-subset-data-SSA" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four line graphs that outline the average values of each indicator by country per year. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-subset-data-SSA-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-subset-data-SSA-1.png" class="img-fluid figure-img" alt="Four line graphs that outline the average values of each indicator by country per year. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure." width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-subset-data-SSA-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Averages of Indicators by Country per Year
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Taking this analysis a step further, <a href="#fig-subset-data-SSA-location" class="quarto-xref">Figure&nbsp;3</a> illustrates the relationship between each indicator and the population size of individual refugee camps.</p>
+<p>Again, the red dashed line represents the recommended UNHCR standard. These figures suggest that as refugee camp populations increase, access to WASH resources become more limited. It should also be noted that refugee camps are generally intended to accommodate about 20,000 people. Although this standard is not explicitly shown in the figures, it can be seen that many camps have exceeded that capacity.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-subset-data-SSA-location" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four line graphs that outline the average values of each indicator by location, further categorized by country by color. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure. There is also a trendline that tracks the relationship between population and resource management.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-subset-data-SSA-location-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-subset-data-SSA-location-1.png" class="img-fluid figure-img" alt="Four line graphs that outline the average values of each indicator by location, further categorized by country by color. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure. There is also a trendline that tracks the relationship between population and resource management." width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-subset-data-SSA-location-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Refugee Camp Population and Relation to WASH Indicators
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Unfortunately, these results make it clear that many refugees have limited access to adequate WASH infrastructure within these camps.</p>
+</section>
+<section id="conclusions" class="level1">
+<h1>Conclusions</h1>
+<section id="summary-of-findings" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-findings">Summary of Findings</h2>
+<p>The analysis on this data set would indicate that:</p>
+<ul>
+<li><p>Refugee camps in Sub-Saharan Africa tend to fall below the UNHCR standards</p></li>
+<li><p>Almost 58% of camps provide less than 20 liters of water per person per day</p></li>
+<li><p>63% of taps in refugee camps service more than 100 people</p></li>
+<li><p>Generally, an increase in population leads to a decrease in water resources per person</p></li>
+</ul>
+<div class="cell" data-tbl-alt="A table that lists the WASH indicators and a percentage that represents how many do not meet the international standards." data-tbl-width="9">
+<div id="tbl-indicator-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-width="9" data-tbl-alt="A table that lists the WASH indicators and a percentage that represents how many do not meet the international standards.">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-indicator-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Average Percentage of Refugee Camps that do not meet WASH International Standards
+</figcaption>
+<div aria-describedby="tbl-indicator-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="zaczosqsni" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zaczosqsni table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#zaczosqsni thead, #zaczosqsni tbody, #zaczosqsni tfoot, #zaczosqsni tr, #zaczosqsni td, #zaczosqsni th {
+  border-style: none;
+}
+
+#zaczosqsni p {
+  margin: 0;
+  padding: 0;
+}
+
+#zaczosqsni .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#zaczosqsni .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#zaczosqsni .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#zaczosqsni .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#zaczosqsni .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#zaczosqsni .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#zaczosqsni .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#zaczosqsni .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#zaczosqsni .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#zaczosqsni .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#zaczosqsni .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#zaczosqsni .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#zaczosqsni .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#zaczosqsni .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#zaczosqsni .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zaczosqsni .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#zaczosqsni .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#zaczosqsni .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#zaczosqsni .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zaczosqsni .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#zaczosqsni .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zaczosqsni .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#zaczosqsni .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zaczosqsni .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zaczosqsni .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zaczosqsni .gt_left {
+  text-align: left;
+}
+
+#zaczosqsni .gt_center {
+  text-align: center;
+}
+
+#zaczosqsni .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#zaczosqsni .gt_font_normal {
+  font-weight: normal;
+}
+
+#zaczosqsni .gt_font_bold {
+  font-weight: bold;
+}
+
+#zaczosqsni .gt_font_italic {
+  font-style: italic;
+}
+
+#zaczosqsni .gt_super {
+  font-size: 65%;
+}
+
+#zaczosqsni .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#zaczosqsni .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#zaczosqsni .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#zaczosqsni .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#zaczosqsni .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#zaczosqsni .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#zaczosqsni .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#zaczosqsni .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#zaczosqsni div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<td colspan="2" class="gt_heading gt_title gt_font_normal">Percentage of Refugee Camps that do not meet the International Standard</td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Percentage by Indicator</td>
 </tr>
 <tr class="gt_col_headings header">
 <th id="Indicators" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Indicator</th>
@@ -1357,18 +2006,19 @@ ul.task-list li input[type="checkbox"] {
 </table>
 
 </div>
-<p>Table 2: Average Percentage of Refugee Camps that do not meet WASH International Standards</p>
 </div>
 </div>
-</section>
-<section id="conclusions" class="level1">
-<h1>Conclusions</h1>
-<section id="summary-of-findings" class="level2">
-<h2 class="anchored" data-anchor-id="summary-of-findings">Summary of Findings</h2>
+</figure>
+</div>
+</div>
+<p>There are many reasons why WASH infrastructure may fall short in refugee camps. Overcrowding, resource contamination, geographic constraints, limited resources, secutiry concerns, and insufficient funding are just to name a few examples.</p>
+<p>The purpose of this analysis is not to place blame on any particular country, region, or organization for failing to meet the UNHCR standards. Rather, it is intended to highlight that the current needs of many refugees are not being fully met. <a href="#tbl-indicator-summary" class="quarto-xref">Table&nbsp;3</a> shows that while access to toilets and showers is often more available, significant challenges remain regarding daily water availability and access to water collection points.</p>
 </section>
 <section id="questions-and-next-steps" class="level2">
 <h2 class="anchored" data-anchor-id="questions-and-next-steps">Questions and Next Steps</h2>
-<p>Right now I’m working in generalizations by region, I would want to do more of a deep dive into the specifics per Refugee Camp. It would also be interesting to see the their locations, how they coorelate, and get more information about why they were formed.</p>
+<p>I believe that there is a lot of room to continue working with this data to gain more comprehensive insights to the real situations of refugees. While I was able to gain a fundamental understanding of the situation within Sub-Saharan Africa, I would love to do a cross-analysis of this with other regions in the world. From there, then further work can be done to see what refugee camps and regions are performing better than others in meeting these requirements and what actions could be taken to implement the same in under-performing areas.</p>
+<p>I believe there is significant opportunity to continue working with this data set to gain a more comprehensive understanding of the realities faced by refugees. While this analysis focused on Sub-Saharan Africa, a valuable next step would be to compare these finding with those from other regions around the word. Then, additional work could be done to identify which camps are performing better at meeting the WASH standards and what practices could potentially be applied to areas that are struggling.</p>
+<p>That being said, the conditions and quality of life within refugee camps cannot be fully understood through quantitative WASH data. It would be valuable to examine additional indicators such as access to food, education, community engagement, shelter quality, and length of stay in a refugee camp, alongside the WASH data, to develop a more complete picture of the conditions and well being of refugees.</p>
 </section>
 </section>
 

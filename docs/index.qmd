@@ -13,6 +13,11 @@ author:
 date: 2026-07-01
 format: html
 editor: visual
+execute:
+  echo: false
+  output: false
+  warning: false
+  message: false
 ---
 
 # Introduction
@@ -185,8 +190,13 @@ wash_data_core_summary <- wash_data_core %>%
             sum_cities = n_distinct(location_name),
             sum_reports = n(),
             sum_report_years = n_distinct(year),
-            post_emergency = mean((post_emergency == "Post-emergency") * 100))
+            post_emergency = mean((post_emergency == "Post-emergency"), na.rm = TRUE) * 100)
 # anything not "post-emergency" means that it was active during an emergency
+
+```
+
+```{r}
+#| output: TRUE
 
 wash_data_core_summary |> 
   gt() |> 
@@ -211,7 +221,9 @@ wash_data_core_summary |>
     sum_report_years = "Number of Years with Reports",
     post_emergency = "% Refugee Camps Post-Emergency"
   )
+```
 
+```{r}
 # SUMMARIES OF REPORTING PERIODS BY COUNTRY AND LOCATION (basically showing activity)
 # summarize by year, but only using core for countries/locations being used, yyyy
 wash_data_timeline <- wash_data_core |> 
@@ -220,48 +232,48 @@ wash_data_timeline <- wash_data_core |>
   summarise(country_count = n_distinct(country),
             location_count = n_distinct(location_name)) 
 
-# summarize by year, but only using core for countries/locations being used, yyyy-mm
-wash_data_timeline_full <- wash_data_core |> 
-  group_by(report_date, region) |> 
-  summarise(country_count = n_distinct(country),
-            location_count = n_distinct(location_name)) 
+wash_data_timeline_yr <- wash_data_core |> 
+  mutate(year = substr(report_date, "1", "4")) |> 
+  group_by(year) |> 
+  summarise(country_count = n_distinct(country))
 ```
 
 Initial Visualization
 
 ```{r}
-#| label: country_by_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
+#| output: TRUE
+#| label: reports_per_year
+#| fig-cap: "Figure 1: Number of Refugee Camps Reported per Year"
+#| fig-alt: "Bar chart of the number of refugee camps reported on each year. This is cross-referenced with a line graph that shows the change in the number of countries reporting on refugee camps each year. The bar chart is further identified by color to indicate how many refugee camps are present per region."
 
-ggplot(data = wash_data_timeline,
-       mapping = aes(x = year,
-                     y = country_count,
-                     fill = region)) +
-  geom_col() +
-  scale_fill_brewer(palette = "Set2") +
-  labs(title = "Countries with Refugee Camp Reports per Year", 
-       subtitle = "Identified by Region",
-       x = "Year",
-       y = "Number of Countries",
-       fill = "Region")
-
-#| label: location_by_year
-#| fig-cap: "Figure 2: Number of Refugee Camps Reported per Year"
-#| fig-alt: "Bar chart that of the number of refugee camp reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = wash_data_timeline,
-       mapping = aes(x = year,
-                     y = location_count,
-                     fill = region)) +
-  geom_col() +
-  scale_fill_brewer(palette = "Set1") +
-  labs(title = "Number of Refugee Camps Reported per Year", 
-       subtitle = "Identified by Region",
-       x = "Year",
+ggplot() +
+  geom_col(data = wash_data_timeline,
+           mapping = aes(x = year,
+                         y = location_count,
+                         fill = region)) +
+    scale_fill_brewer(palette = "Set1") +
+  geom_point(data = wash_data_timeline_yr,
+             mapping = aes(x = year, 
+                           y= country_count,
+                           group = 1)) +  
+  geom_line(data = wash_data_timeline_yr,
+            mapping = aes(x = year,
+                          y = country_count,
+                          linetype = "Countries Reporting",
+                          group = 1)) +
+  scale_y_continuous(
+    name = "Number of Refugee Camps", 
+    sec.axis = sec_axis(
+      ~ .,
+        name = "Number of Countries Reporting"
+      )
+    ) +
+  labs(title = "Number of Refugee Camps Reported per Year",
+       subtitle = "Compared to Number of Countries Reporting per Year",
+       x = "Year", 
        y = "Number of Refugee Camps",
-       fill = "Region")
-
+       fill = "Regions",
+       linetype = "Countries")
 ```
 
 Write CSV
@@ -275,419 +287,126 @@ write_csv(wash_data_lim,
 
 According the UNHCR:
 
-Water Supply
-
-- **20 liters / person / day (by country)**
-
 ```{r}
-# getting liters per person and mapping it out by regions
-liters20_region <- wash_data_core |> 
+# FOCUS SPECIFICALLY ON SUB-SAHARHAN AFRICA SINCE IT HAS THE MOST DATA
+# Starting with laying out the standards and actuals per year
+
+core_SSA <- wash_data_core |> 
   mutate(year = substr(report_date, "1", "4")) |> 
-  group_by(region, year) |> 
-  summarise(liters_person_day = mean(liters_person_day, na.rm = TRUE)) |> 
-  filter(liters_person_day != 0)
-
-#| label: country_by_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = liters20_region,
-       mapping = aes(x = year,
-                     y = liters_person_day, 
-                     color = region,
-                     group = region)) +
-  geom_line() + 
-  geom_point() +
-  scale_color_brewer(palette = "Set2") + 
-  labs(
-    title = "Liters per Person per Day",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Liters per Person per Day", 
-    color = "Region"
-  )
-
-```
-
-```{r}
-# getting liters per person and mapping it as only SSA
-liters20_country <- wash_data_core |> 
-  mutate(year = substr(report_date, "1", "4")) |> 
+  filter(region == "Sub-Saharan Africa", 
+         year >= 2018, 
+         liters_person_day < 75,
+         persons_per_shower < 300, 
+         persons_per_tap < 750,
+         persons_per_toilet < 100) |> 
   group_by(region, country, year) |> 
-  summarise(liters_person_day = mean(liters_person_day, na.rm = TRUE)) |>
-  filter(liters_person_day != 0, region == "Sub-Saharan Africa", liters_person_day < 100, n() >= 4) 
-  # takes out the ones that don't have data (listed at 0)
+  summarise(liters_person_day = mean(liters_person_day, na.rm = TRUE),
+            persons_per_tap = mean(persons_per_tap, na.rm = TRUE),
+            persons_per_toilet = mean(persons_per_toilet, na.rm = TRUE),
+            persons_per_shower = mean(persons_per_shower, na.rm = TRUE)) |> 
+  pivot_longer(
+    cols = c(liters_person_day,
+             persons_per_tap,
+             persons_per_toilet,
+             persons_per_shower),
+    names_to = "Indicators", 
+    values_to = "Values"
+  )
 
-#| label: location_by_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
+reference <- tibble(
+  Indicators = c("liters_person_day",
+                 "persons_per_tap",
+                 "persons_per_toilet",
+                 "persons_per_shower"),
+  Baseline = c(20,
+             100,
+             20,
+             50)
+)
 
-ggplot(data = liters20_country,
-       mapping = aes(x = year,
-                     y = liters_person_day, 
-                     color = country,
-                     group = country)) +
-  geom_line() + 
+core_SSA <- left_join(core_SSA, reference, by = join_by("Indicators"))
+
+```
+
+```{r}
+#| output: TRUE
+#| label: subset_data_SSA
+#| fig-cap: "Figure 2: Averages of Indicators by Country per Year"
+#| fig-alt: "Four line graphs that outline the average values of each indicator by country per year. This is referenced against the international standard that should be met at refugee sites to maintain proper WASH infrastructure."
+
+ggplot(data = core_SSA,
+       mapping = aes(x = year, 
+                     y = Values, 
+                     group = country, 
+                     color = country)) +
   geom_point() +
+  geom_line() +
   geom_hline(
-    yintercept = 20,
+    aes(yintercept = Baseline),
     linetype = "dashed",
-    linewidth = 1,
+    linewidth = 1.5,
     color = "red"
   ) +
+  facet_wrap(~Indicators,
+             scales = "free_y",
+             labeller = labeller(
+               Indicators = c(
+                 "liters_person_day" = "Liters per Person per Day",
+                 "persons_per_shower" = "Persons per Shower",
+                 "persons_per_tap" = "Persons per Tap",
+                 "persons_per_toilet" = "Persons per Toilet"
+               )
+             )) +
   scale_color_viridis_d() +
-  labs(
-    title = "Liters per Person per Day",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Liters per Person per Day", 
-    color = "Country"
-  )
+  labs(title = "Average of Indicators by Country",
+       subtitle = "Compared against International Standard",
+       x = "Year", 
+       y = "Average per Indicator", 
+       color = "Country") +
+  theme_minimal()
+```
 
-liters_avg <- liters20_country |> 
+```{r}
+# preparing a summary table of how often refugee camps don't meet international standard
+avg_summary <- core_SSA |> 
+  pivot_wider(
+    names_from = "Indicators", 
+    values_from = "Values"
+  ) |> 
   group_by(country) |> 
-  summarise(
-    avg_liters = mean(liters_person_day, na.rm = TRUE)
-  ) 
+  summarise(avg_liters = mean(liters_person_day, na.rm = TRUE),
+            avg_taps = mean(persons_per_tap, na.rm = TRUE),
+            avg_toilets = mean(persons_per_toilet, na.rm = TRUE),
+            avg_shower = mean(persons_per_shower, na.rm = TRUE)) 
 
-mean(liters_avg$avg_liters < 20) * 100
-# 70% of the refugee camps fall under the 20 liters per day
-```
-
-- **serve max 100 people (by county)**
-
-```{r}
-# persons per tap per region
-taps100_region <- wash_data_core |> 
-  mutate(year = substr(report_date, "1", "4")) |> 
-  group_by(region, year) |> 
-  summarise(persons_per_tap = mean(persons_per_tap, na.rm = TRUE)) |> 
-  filter(!is.na(persons_per_tap))
-
-#| label: taps_country_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = taps100_region,
-       mapping = aes(x = year,
-                     y = persons_per_tap, 
-                     color = region,
-                     group = region)) +
-  geom_line() + 
-  geom_point() +
-  geom_hline(
-    yintercept = 100,
-    linetype = "dashed",
-    linewidth = 1,
-    color = "red"
-  ) +
-  scale_color_brewer(palette = "Set2") + 
-  labs(
-    title = "Taps per Person by Region",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Taps per Person", 
-    color = "Region"
-  )
+results_fin <- tibble(
+  Indicators = c("Liters per Person per Day",
+                 "Persons per Tap", 
+                 "Persons per Toilet",
+                 "Persons per Shower"),
+  Results = c(mean((avg_summary$avg_liters) < 20)*100,
+              mean((avg_summary$avg_taps) > 100) *100, 
+              mean((avg_summary$avg_toilets) > 20) *100, 
+              mean((avg_summary$avg_shower) > 50) * 100)
+)
 ```
 
 ```{r}
-# persons per tap per SSA refugee camps
-taps100_country <- wash_data_core |> 
-  mutate(year = substr(report_date, "1", "4")) |> 
-  group_by(region, country, year) |> 
-  summarise(persons_per_tap = mean(persons_per_tap, na.rm = TRUE)) |>
-  filter(persons_per_tap != 0, region == "Sub-Saharan Africa", n() >= 4) 
-# takes out the ones that don't have data (listed at 0)
+#| output: TRUE
 
-#| label: location_by_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = taps100_country,
-       mapping = aes(x = year,
-                     y = persons_per_tap, 
-                     color = country,
-                     group = country)) +
-  geom_line() + 
-  geom_point() +
-  geom_hline(
-    yintercept = 100,
-    linetype = "dashed",
-    linewidth = 1,
-    color = "red"
-  ) +
-  scale_color_viridis_d() +
-  labs(
-    title = "Persons per Tap by Year",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Persons per Tap", 
-    color = "Country"
+results_fin |> 
+  gt() |> 
+  tab_header(
+    title = "Percentage of Refugee Camps above International Standard",
+    subtitle = "Determined by Indicator"
+  ) |> 
+  fmt_number(
+    columns = Results,
+    decimals = 2) |> 
+  cols_label(
+    Indicators = "Indicator",
+    Results = "Results",
   )
-
-taps_avg <- taps100_country |> 
-  group_by(country) |> 
-  summarise(
-    avg_taps = mean(persons_per_tap, na.rm = TRUE)
-  ) 
-
-mean(taps_avg$avg_taps > 100) * 100
-# 60% of the refugee camps fall above the 100 persons per tap
-```
-
-Bathrooms:
-
-- 1 bathroom / 20 people
-
-```{r}
-# persons per bathroom per region
-bath20_region <- wash_data_core |> 
-  mutate(year = substr(report_date, "1", "4")) |> 
-  group_by(region, year) |> 
-  summarise(persons_per_toilet = mean(persons_per_toilet, na.rm = TRUE)) |> 
-  filter(!is.na(persons_per_toilet))
-
-#| label: bath_country_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = bath20_region,
-       mapping = aes(x = year,
-                     y = persons_per_toilet, 
-                     color = region,
-                     group = region)) +
-  geom_line() + 
-  geom_point() +
-  geom_hline(
-    yintercept = 20,
-    linetype = "dashed",
-    linewidth = 1,
-    color = "red"
-  ) +
-  scale_color_brewer(palette = "Set2") + 
-  labs(
-    title = "Taps per Person by Region",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Persons per Bathrooms", 
-    color = "Region"
-  )
-```
-
-- by camp
-
-```{r}
-# persons per tap per SSA refugee camps
-bath20_country <- wash_data_core |> 
-  mutate(year = substr(report_date, "1", "4")) |> 
-  group_by(region, country, year) |> 
-  summarise(persons_per_toilet = mean(persons_per_toilet, na.rm = TRUE)) |>
-  filter(persons_per_toilet != 0, region == "Sub-Saharan Africa", n() >= 4, persons_per_toilet < 100) 
-# takes out the ones that don't have data (listed at 0)
-
-#| label: location_by_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = bath20_country,
-       mapping = aes(x = year,
-                     y = persons_per_toilet, 
-                     color = country,
-                     group = country)) +
-  geom_line() + 
-  geom_point() +
-  geom_hline(
-    yintercept = 20,
-    linetype = "dashed",
-    linewidth = 1,
-    color = "red"
-  ) +
-  scale_color_viridis_d() +
-  labs(
-    title = "Persons per Tap by Year",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Persons per Toilet", 
-    color = "Country"
-  )
-
-baths_avg <- bath20_country |> 
-  group_by(country) |> 
-  summarise(
-    avg_baths = mean(persons_per_toilet, na.rm = TRUE)
-  ) 
-
-mean(baths_avg$avg_baths > 20) * 100
-# 40% of the refugee camps fall above the 100 persons per tap
-```
-
-- 1 shower / 50 people (country)
-
-```{r}
-# persons per shower per region
-shower50_region <- wash_data_core |> 
-  mutate(year = substr(report_date, "1", "4")) |> 
-  group_by(region, year) |> 
-  summarise(persons_per_shower = mean(persons_per_shower, na.rm = TRUE)) |> 
-  filter(!is.na(persons_per_shower))
-
-#| label: shower_country_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = shower50_region,
-       mapping = aes(x = year,
-                     y = persons_per_shower, 
-                     color = region,
-                     group = region)) +
-  geom_line() + 
-  geom_point() +
-  geom_hline(
-    yintercept = 50,
-    linetype = "dashed",
-    linewidth = 1,
-    color = "red"
-  ) +
-  scale_color_brewer(palette = "Set2") + 
-  labs(
-    title = "Showers per Person by Region",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Persons per Showers", 
-    color = "Region"
-  )
-```
-
-- by camp
-
-```{r}
-# persons per tap per SSA refugee camps
-shower50_country <- wash_data_core |> 
-  mutate(year = substr(report_date, "1", "4")) |> 
-  group_by(region, country, year) |> 
-  summarise(persons_per_shower = mean(persons_per_shower, na.rm = TRUE)) |>
-  filter(persons_per_shower != 0, region == "Sub-Saharan Africa", n() >= 4, persons_per_shower < 100) 
-# takes out the ones that don't have data (listed at 0)
-
-#| label: location_by_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = shower50_country,
-       mapping = aes(x = year,
-                     y = persons_per_shower, 
-                     color = country,
-                     group = country)) +
-  geom_line() + 
-  geom_point() +
-  geom_hline(
-    yintercept = 50,
-    linetype = "dashed",
-    linewidth = 1,
-    color = "red"
-  ) +
-  scale_color_viridis_d() +
-  labs(
-    title = "Persons per Tap by Year",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Persons per Shower", 
-    color = "Country"
-  )
-
-showers_avg <- shower50_country |> 
-  group_by(country) |> 
-  summarise(
-    avg_showers = mean(persons_per_shower, na.rm = TRUE)
-  ) 
-
-mean(showers_avg$avg_showers > 50) * 100
-# ~17.5% of the refugee camps fall above the 100 persons per tap
-```
-
-Population:
-
-```{r}
-# persons per shower per region
-pop20t_region <- wash_data_core |> 
-  mutate(year = substr(report_date, "1", "4")) |> 
-  group_by(region, year) |> 
-  summarise(refugee_pop = mean(refugee_pop, na.rm = TRUE)) |> 
-  filter(!is.na(refugee_pop), refugee_pop != 0)
-
-#| label: shower_country_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = pop20t_region,
-       mapping = aes(x = year,
-                     y = refugee_pop, 
-                     color = region,
-                     group = region)) +
-  geom_line() + 
-  geom_point() +
-  geom_hline(
-    yintercept = 20000,
-    linetype = "dashed",
-    linewidth = 1,
-    color = "red"
-  ) +
-  scale_color_brewer(palette = "Set2") + 
-  labs(
-    title = "Showers per Person by Region",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Persons per Showers", 
-    color = "Region"
-  )
-```
-
-- 20,000 people per camp
-
-```{r}
-# persons per tap per SSA refugee camps
-pop20t_country <- wash_data_core |> 
-  mutate(year = substr(report_date, "1", "4")) |> 
-  group_by(region, country, year) |> 
-  summarise(refugee_pop = mean(refugee_pop, na.rm = TRUE)) |>
-  filter(refugee_pop != 0, region == "Sub-Saharan Africa", n() >= 4) 
-# takes out the ones that don't have data (listed at 0)
-
-#| label: location_by_year
-#| fig-cap: "Figure 1: Number of Countries with Reported Refugee Camps per Year"
-#| fig-alt: "Bar chart that of the number of countries with reportings per year. Further identified by color for distribution of countries by global region."
-
-ggplot(data = pop20t_country,
-       mapping = aes(x = year,
-                     y = refugee_pop, 
-                     color = country,
-                     group = country)) +
-  geom_line() + 
-  geom_point() +
-  geom_hline(
-    yintercept = 20000,
-    linetype = "dashed",
-    linewidth = 1,
-    color = "red"
-  ) +
-  scale_color_viridis_d() +
-  labs(
-    title = "Population",
-    subtitle = "Identified by Region", 
-    x = "Year", 
-    y = "Population", 
-    color = "Country"
-  )
-
-pop_avg <- pop20t_country |> 
-  group_by(country) |> 
-  summarise(
-    avg_pop = mean(refugee_pop, na.rm = TRUE)
-  ) 
-
-mean(pop_avg$avg_pop > 20000) * 100
-# 40% of the refugee camps fall above the 20000 per camp
 ```
 
 # Conclusions
